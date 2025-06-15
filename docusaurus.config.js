@@ -1,11 +1,6 @@
 // @ts-check
 // docusaurus.config.js
 
-import dracula from 'prism-react-renderer/themes/dracula';
-// @ts-check
-// docusaurus.config.js
-
-
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
