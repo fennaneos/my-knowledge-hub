@@ -1,0 +1,92 @@
+:root {
+  --ifm-color-primary: #00e0ff;
+  --ifm-background-color: #0d1117;
+  --ifm-font-color-base: #ffffff;
+}
+
+/* Make entire site consistent dark background */
+html,
+body {
+  background-color: #000 !important;
+  color: #f2f2f2 !important;
+}
+
+/* Override doc page wrapper background */
+main[class^="docMainContainer"] {
+  background-color: #000 !important;
+}
+
+/* Override the footer */
+.footer {
+  background-color: #000 !important;
+  color: #f2f2f2 !important;
+}
+
+/* General text styles */
+h1, h2, h3, p, li {
+  color: #f1f1f1 !important;
+}
+
+/* Sidebar */
+.menu {
+  background-color: #111 !important;
+}
+
+.menu__link {
+  color: #ccc !important;
+}
+.menu__link--active {
+  color: #fff !important;
+  font-weight: bold;
+}
+
+
+
+a {
+  color: var(--ifm-color-primary);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+/* Navbar base */
+.navbar {
+  background-color: #000;
+  min-height: 100px;
+  padding: 5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Arrange navbar inner elements */
+.navbar__inner {
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Push logo to center absolutely */
+.navbar__logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Logo size */
+.navbar__logo img {
+  height: 128px;
+  object-fit: contain;
+}
+
+/* Title hidden */
+.navbar__title {
+  display: none;
+}
+
+/* Optional: tweak nav items */
+.navbar__items {
+  color: white;
+}
+.navbar__link:hover {
+  color: #ccc;
+}
