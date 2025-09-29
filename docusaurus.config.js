@@ -1,6 +1,8 @@
 // @ts-check
 // docusaurus.config.js
 
+import math from 'remark-math';
+import katex from 'rehype-katex';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -14,25 +16,34 @@ const config = {
   organizationName: 'your-org', // Replace with your GitHub org/user
   projectName: 'your-repo-name', // Replace with your repo name
 
-presets: [
-  [
-    'classic',
-    /** @type {import('@docusaurus/preset-classic').Options} */
-    ({
-      docs: {
-  routeBasePath: '/', // ✅ This makes docs load at /
-  sidebarPath: require.resolve('./sidebars.js'),
-},
-      blog: false,
-      pages: false, // ✅ Disable non-doc pages
-      theme: {
-        customCss: require.resolve('./src/css/custom.css'),
-      },
-    }),
+  presets: [
+    [
+      'classic',
+      /** @type {import('@docusaurus/preset-classic').Options} */
+      ({
+        docs: {
+          routeBasePath: '/', // ✅ docs served at /
+          sidebarPath: require.resolve('./sidebars.js'),
+          // ✅ Enable LaTeX math in MDX
+          remarkPlugins: [math],
+          rehypePlugins: [katex],
+        },
+        blog: false,
+        pages: false, // ✅ Disable non-doc pages
+        theme: {
+          customCss: require.resolve('./src/css/custom.css'),
+        },
+      }),
+    ],
   ],
-],
 
-
+  // ✅ Load KaTeX CSS so math renders correctly
+  stylesheets: [
+    {
+      href: 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+      type: 'text/css',
+    },
+  ],
 
   themeConfig: {
     navbar: {
@@ -60,13 +71,11 @@ presets: [
       copyright: `Copyright © ${new Date().getFullYear()} DevDocs.`,
     },
     colorMode: {
-  defaultMode: 'dark',
-  disableSwitch: true,
-  respectPrefersColorScheme: false,
-},
-
+      defaultMode: 'dark',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
+    },
   },
 };
 
 export default config;
-

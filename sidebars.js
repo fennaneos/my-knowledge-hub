@@ -31,6 +31,11 @@ module.exports = {
       label: 'Git',
       items: ['git/git'],
     },
+    {
+      type: 'category',
+      label: 'Finance',
+      items: ['finance/skew-smile'],
+    },
   ],
 };
 
