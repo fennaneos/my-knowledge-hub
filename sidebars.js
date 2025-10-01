@@ -34,7 +34,8 @@ module.exports = {
     {
       type: 'category',
       label: 'Finance',
-      items: ['finance/skew-smile'],
+      items: ['finance/skew-smile', 'finance/autocallables', 'finance/calls-and-puts', 
+        'finance/forwards-dividends', 'finance/convexity-adjustment', 'finance/discountcurve'],
     },
   ],
 };
