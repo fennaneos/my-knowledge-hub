@@ -1,0 +1,340 @@
+import HeroLux from '@site/src/components/heroLux';
+import LuxButton from '@site/src/components/LuxButton';
+import StatBadge from '@site/src/components/StatBadge';
+
+
+
+<HeroLux
+  eyebrow="Equities & Indices"
+  title="Actions & Indices"
+  subtitle="A modern handbook on equity markets, dividends, forwards, and index derivatives."
+  align="left"
+>
+<LuxButton variant="gold" onClick={() => window.location.hash = '#forwards-on-dividends'}>
+  Explore Forwards on Dividends
+</LuxButton>
+<LuxButton variant="ghost" onClick={() => window.location.hash = '#dividends-and-options'}>
+  Dividends & Options
+</LuxButton>
+
+</HeroLux>
+
+
+---
+
+<div className="gold-glow" style={{border:'1px solid rgba(212,175,55,0.25)', borderRadius:12, padding:'1rem'}}>
+  # 1. Actions & Indices  
+**Definition**  
+An action (stock) represents a fraction of ownership in a company. Shareholders may receive **dividends**, which are distributions of corporate profits.
+
+**Dividend Types**
+- **Discrete dividends**: Fixed amounts paid on specific dates (e.g. €2 per share on ex-dividend date).  
+- **Continuous dividend yield $$q$$**: Modeled as a constant proportional yield, simplifying option and forward pricing.
+
+</div>
+
+
+---
+
+## 2. Equity Indices
+
+<div style={{display:'flex', gap:12, flexWrap:'wrap', marginTop: '10px', marginBottom: '16px'}}>
+  <StatBadge label="EuroStoxx 50 Dividend Yield" value="~3.2%" />
+  <StatBadge label="CAC 40 Dividend Yield" value="~3.5%" />
+  <StatBadge label="Nasdaq 100 Dividend Yield" value="~0.9%" />
+  <StatBadge label="S&P 500 Dividend Yield" value="~1.6%" />
+</div>
+
+### Why Dividend Yields Matter
+The **dividend yield** is a fundamental component of an index’s **forward pricing** and **total return** dynamics.  
+A higher yield means investors receive more cash flow from dividends — but it also means that, **under risk-neutral pricing**, the **forward price is discounted** more heavily:
+
+$$
+F_t^{index}(T) = S_t \, e^{(r - q_{index})(T-t)} ,
+$$
+
+where:
+- $$ S_t $$: current index level  
+- $$ r $$: risk-free rate  
+- $$ q_{index} $$: aggregate dividend yield (weighted average across constituents)  
+
+A higher $$ q_{index} $$ ⇒ lower $$ F_t^{index} $$.  
+Hence, EuroStoxx and CAC forwards trade below spot, while Nasdaq’s lower yield keeps forwards closer to spot.
+
+
+### Forward vs Spot under Dividend Yields
+
+> Forward on an index with dividends:  
+> $$ F_t^{\text{index}}(T) = S_t \, e^{(r - q)(T-t)}. $$
+
+- If $$q < r$$: $$F > S$$ (carry positive)  
+- If $$q \approx r$$: $$F \approx S$$  
+- If $$q > r$$: $$F < S$$ (dividends dominate)
+
+<div style={{textAlign:'center', margin:'1rem 0'}}>
+  <img src="/img/eurostoxx_forward_curves.png" alt="EuroStoxx Forward vs Spot under Dividend Yields" style={{maxWidth:'880px', width:'100%', border:'1px solid rgba(212,175,55,0.35)', borderRadius:12, boxShadow:'0 0 18px rgba(212,175,55,0.25)'}} />
+  <div style={{color:'#d4af37', marginTop:8, fontStyle:'italic'}}>
+    EuroStoxx — Forward vs Spot
+  </div>
+
+  $$
+  q \in \{0\%, 2\%, 4\%\}, \quad r = 2\%.
+  $$
+</div>
+
+
+---
+
+### 🟡 EuroStoxx 50
+- Represents 50 of the largest **Eurozone blue-chip companies** (e.g. TotalEnergies, LVMH, Siemens).  
+- Dividend yield around **3–3.5%**, reflecting Europe’s high payout culture.  
+- Published as:
+  - **Price Index:** excludes dividends.  
+  - **Total Return Index:** assumes reinvestment of dividends.  
+- Often used in **structured products** and **volatility trading**, as its stable yield simplifies modeling.
+
+Mathematically, for dividend-corrected pricing:
+$$
+S_t^{TR} = S_t^{Price} \, e^{q_{index}(T-t)}
+$$
+where the total return index outperforms the price index by the cumulative dividend yield.
+
+---
+
+### 🟡 CAC 40
+- France’s 40 largest listed firms (BNP Paribas, Airbus, L’Oréal, etc.), **capitalization-weighted**.  
+- Typical dividend yield ~3.5%, but fluctuates with **sector rotation** and **payout ratios**.  
+- Strongly cyclical: yields tend to rise in downturns as prices fall.  
+- **Forward discount** is comparable to EuroStoxx:
+<br/>
+
+$$
+\frac{F_{CAC}}{S_{CAC}} \approx e^{(r - q_{CAC})(T-t)} \Rightarrow \text{~1.5\%–2.5\% below spot annually.}
+$$
+
+---
+
+### 🟢 Nasdaq 100
+- Comprises 100 largest **non-financial U.S. tech-oriented stocks** (e.g. Apple, Microsoft, NVIDIA).  
+- Dividend yield extremely low (~0.9%) due to **growth focus** and **share buybacks** replacing dividends.  
+- Forward curve nearly **flat to spot** because $$ q_{Nasdaq} \approx r $$.  
+- During bull markets, this creates **positive carry** for index futures buyers.
+
+---
+
+### Comparative View
+| Index | Dividend Yield | Typical Forward Discount | Dominant Sectors | Comments |
+|--------|----------------|--------------------------|------------------|-----------|
+| **EuroStoxx 50** | 3.2% | -2% to -3% vs Spot | Financials, Industrials | Stable dividend culture, low buybacks |
+| **CAC 40** | 3.5% | -2% to -3% | Energy, Luxury, Banks | High French dividend payout ratios |
+| **Nasdaq 100** | 0.9% | ≈0% | Tech, Consumer Discretionary | Low yield, strong buyback bias |
+| **S&P 500** | 1.6% | -0.5% | Broad Market | Balanced income/growth mix |
+
+---
+
+<div style={{
+  marginTop: '1rem',
+  padding: '1rem',
+  border: '1px solid rgba(212,175,55,0.25)',
+  borderRadius: '12px',
+  backgroundColor: '#0d0d0d'
+}}>
+  <p style={{color:'#d4af37', fontStyle:'italic'}}>
+    💡 Interpretation:  
+    The numerical yields in the boxes are not decorative — they represent the **discount rate applied to forward pricing**.  
+    Higher yield → lower forward → more negative forward premium → impacts **option skew** and **forward-start derivatives**.
+  </p>
+</div>
+
+
+---
+
+## 3. Forwards on Dividend-Paying Assets {#forwards-on-dividends}
+
+### General Formula
+
+- **With continuous dividend yield $$q$$:**
+  $$
+  F_t^{fwd}(T) = S_t \, e^{(r - q)(T-t)}.
+  $$
+
+- **With discrete dividends $$\{D_i\}$$ before $$T$$:**
+  $$
+  F_t^{fwd}(T) = \big(S_t - \text{PV}_t[\text{dividends}]\big) \, e^{r(T-t)}.
+  $$
+
+Where:
+- $$S_t$$ = spot price  
+- $$r$$ = risk-free rate  
+- $$\text{PV}_t[\text{dividends}]$$ = present value of dividends paid before maturity  
+
+---
+
+## 4. Dividends and Option Pricing {#dividends-and-options}
+
+
+Dividends **shift the forward price downwards**, which has opposite effects on options:
+
+- **Call options**: Lose value, since the forward decreases.  
+- **Put options**: Gain value, since downside probability increases.  
+
+---
+
+## 5. Numerical Example
+
+Suppose:
+- Spot price $$S_0 = 100$$,  
+- Risk-free rate $$r = 2\%$$,  
+- Dividend yield $$q = 3\%$$,  
+- Maturity $$T = 1$$ year.  
+
+Then:
+$$
+F_0^{fwd}(1) = 100 \, e^{(0.02 - 0.03)} = 99.0
+$$
+
+The forward trades **below spot** because the dividend yield exceeds the risk-free rate.
+
+---
+
+## 6. Practical Applications
+
+- **Dividend forecasts** are essential in pricing structured products (e.g. autocallables, barriers).  
+- **Dividend swaps** exist to hedge dividend exposure separately from index exposure.  
+- **Index forwards** (e.g. EuroStoxx, CAC) almost always price below spot due to positive dividend yields.
+
+---
+
+## 7. Interview Practice
+
+**Q1. Why are equity index forwards typically below spot?**  
+Because dividends reduce the forward: the expected dividend yield outweighs the financing cost.  
+
+**Q2. How does continuous vs discrete dividend modeling change the formula?**  
+- Continuous yield $$q$$: Exponential adjustment.  
+- Discrete: Subtract present value of fixed dividend payments.  
+
+**Q3. Why do dividends reduce call values but increase put values?**  
+Calls are sensitive to higher forwards (dividends push them down), while puts benefit from lower forwards.  
+
+---
+
+---
+
+## 8. Equity Market Mechanics
+
+Equities represent **claims on future cash flows**, while indices are **weighted portfolios** of these claims.  
+Each stock contributes to the **index level** proportionally to its market capitalization:
+
+$$
+I_t = \frac{\sum_{i=1}^N w_i S_t^{(i)}}{D_t}
+$$
+
+Where:
+- $$S_t^{(i)}$$ = stock price  
+- $$w_i$$ = float-adjusted weight  
+- $$D_t$$ = index divisor ensuring continuity through corporate actions  
+
+**Corporate events** (dividends, splits, rights issues) cause mechanical adjustments to $$D_t$$ to avoid artificial jumps.
+
+---
+
+## 9. Index Forwards and Dividend Curves
+
+Forwards on equity indices incorporate **expected dividends** over the maturity horizon.
+
+$$
+F_t^{index}(T) = S_t e^{(r - q_{impl}(T))(T-t)}
+$$
+
+Here $$q_{impl}(T)$$ is the **implied dividend yield curve**, extracted from index futures.  
+It is **term-dependent**, decreasing for short maturities (front-loaded dividends) and flattening for longer maturities.
+
+<div style={{background:'#111', padding:'1rem', borderRadius:'10px', border:'1px solid gold'}}>
+  <strong>Example:</strong><br/>
+  EuroStoxx50 implied dividend yield (as of Jan 2025):  
+  1Y ≈ 3.2% • 2Y ≈ 3.0% • 5Y ≈ 2.6% • 10Y ≈ 2.4%
+</div>
+
+---
+
+## 10. Dividend Futures and Implied Dividends
+
+**Dividend futures** isolate the dividend component from the index price.  
+They settle on the **sum of dividends** paid by index constituents over a calendar year:
+
+$$
+\text{FutDiv}(T) = \sum_{i=1}^{N_T} D_i
+$$
+
+They are used to:
+- Hedge **dividend exposure** in structured products  
+- Express **macro views** on corporate payout cycles  
+- Arbitrage against **index futures** via synthetic replication  
+
+Relation between index forward and dividend future:
+
+$$
+F^{index} = (S - PV_{div}) e^{rT} \quad \Rightarrow \quad PV_{div} = S - F^{index} e^{-rT}
+$$
+
+---
+
+## 11. Impact of Dividends on Options
+
+Option pricing integrates the **dividend yield** through the forward.  
+For a **call option**:
+
+$$
+C = S e^{-qT} N(d_1) - K e^{-rT} N(d_2)
+$$
+
+For a **put option**:
+
+$$
+P = K e^{-rT} N(-d_2) - S e^{-qT} N(-d_1)
+$$
+
+where:
+$$
+d_1 = \frac{\ln(S/K) + (r - q + 0.5\sigma^2)T}{\sigma\sqrt{T}}, \quad
+d_2 = d_1 - \sigma\sqrt{T}
+$$
+
+Thus, increasing $$q$$ → lowers calls, raises puts.  
+Index skews arise partly from the **asymmetry of dividend uncertainty**.
+
+---
+
+## 12. Stochastic Dividend Yield Models (Advanced)
+
+In reality, dividends evolve stochastically.  
+A simple model assumes:
+
+$$
+dq_t = \kappa(\bar{q} - q_t)dt + \sigma_q dW_t^q
+$$
+
+This yield process can be correlated with volatility and equity price, affecting both the **forward curve** and **vol surface**.
+
+---
+
+## 13. Empirical Observation: Index vs Single Stock Volatility
+
+| Aspect | Single Stocks | Indices |
+|--------|---------------|---------|
+| **Volatility Level** | Higher (idiosyncratic risk) | Lower (diversification) |
+| **Skew Steepness** | Flatter | Steeper (systemic risk) |
+| **Dividend Certainty** | Variable | Aggregated, smoother |
+| **Forward Curve** | Close to spot | Discounted due to aggregate dividends |
+
+---
+
+## 15. Takeaways
+
+- **Dividends** anchor the gap between **spot** and **forward**.  
+- **Index skews** reflect collective downside protection demand.  
+- **Dividend futures** reveal forward expectations of payouts.  
+- For quantitative roles, being able to derive $$F_t^{fwd}(T)$$ and link it to option pricing is crucial.
+
+---

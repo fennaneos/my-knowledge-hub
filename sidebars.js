@@ -34,8 +34,8 @@ module.exports = {
     {
       type: 'category',
       label: 'Finance',
-      items: ['finance/skew-smile', 'finance/autocallables', 'finance/calls-and-puts', 
-        'finance/forwards-dividends', 'finance/convexity-adjustment', 'finance/discountcurve'],
+      items: ['finance/fx', 'finance/Actions-indices', 'finance/skew-smile', 'finance/autocallables', 'finance/calls-and-puts', 
+        'finance/forwards-dividends', 'finance/convexity-adjustment', 'finance/discountcurve', 'finance/volatility-handbook'],
     },
   ],
 };

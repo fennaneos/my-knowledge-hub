@@ -255,3 +255,113 @@ A well-constructed discount curve ensures:
 - **Robustness** in pricing structured products across multiple asset classes.
 
 ---
+
+
+# Discount Curve Construction Using the Pseudo-Inverse Method
+
+## 1. Motivation
+When building a discount curve from market instruments (deposits, FRAs, swaps, etc.), we end up with a system of equations linking **discount factors** to **market quotes**.
+
+- Each market instrument provides one pricing equation.  
+- The unknowns are the **discount factors** $$ P(t_0, T_i) $$.  
+- Collecting all instruments gives a linear system:
+  
+$$
+A \cdot P = b
+$$
+
+where:
+- $$P$$ = vector of discount factors (unknowns),
+- $$b$$ = vector of observed market prices (or normalized values like 1 for par swaps),
+- $$A$$ = matrix of coefficients (cash flow weights, accrual factors, etc.).
+
+---
+
+## 2. The Problem
+In practice:
+- We often have **more equations than unknowns** (overdetermined system, since multiple instruments may cover overlapping maturities).
+- The system may be **ill-conditioned** (due to correlations between instruments or redundant maturities).
+
+This means we **cannot solve directly** with a simple inverse $$A^{-1} b$$.
+
+---
+
+## 3. Pseudo-Inverse Solution
+To handle this, we use the **Moore–Penrose pseudo-inverse**:
+
+$$
+P = A^{+} b
+$$
+
+where:
+
+$$
+A^{+} = (A^T A)^{-1} A^T
+$$
+
+if $$A$$ has full column rank.
+
+This solution corresponds to the **least-squares minimizer**:
+
+$$
+P = \arg \min_{P} \| A P - b \|^2
+$$
+
+In other words, the discount factors are chosen so that the pricing errors across all instruments are minimized in a quadratic sense.
+
+---
+
+## 4. Example (Conceptual)
+Suppose:
+- Unknowns: $$ P(t_0, T_1), P(t_0, T_2) $$.
+- Market instruments: one FRA and two swaps → 3 equations.
+
+This gives:
+$$
+A =
+\begin{bmatrix}
+a_{11} & a_{12} \\
+a_{21} & a_{22} \\
+a_{31} & a_{32}
+\end{bmatrix},
+\quad
+b =
+\begin{bmatrix}
+b_1 \\
+b_2 \\
+b_3
+\end{bmatrix}
+$$
+
+The system is overdetermined ($$3 \times 2$$). Using the pseudo-inverse:
+
+$$
+P = A^{+} b
+$$
+
+provides the best-fit discount factors.
+
+---
+
+## 5. Relation to Bootstrapping
+- **Bootstrapping method:** solves sequentially, instrument by instrument, exact fit.  
+- **Pseudo-inverse method:** solves globally, across all instruments, in a least-squares sense.  
+
+Advantages:
+- Can incorporate **all instruments simultaneously**.  
+- Handles noisy or inconsistent market quotes.  
+- Provides a **smooth and stable curve**, especially when data is redundant or imperfect.
+
+---
+
+## 6. Summary
+The pseudo-inverse method provides a **robust mathematical framework** for constructing discount curves:
+
+- Formulate all pricing equations as $$A P = b$$.  
+- Solve with pseudo-inverse:
+  $$
+  P = (A^T A)^{-1} A^T b
+  $$
+- Ensures the curve is consistent with market data **in the least-squares sense**.  
+
+This approach is particularly useful for structured products pricing, where a stable and arbitrage-free discount curve is essential.
