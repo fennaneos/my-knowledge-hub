@@ -1,12 +1,13 @@
 // src/theme/Root.tsx
 import React from 'react';
-import OriginalRoot from '@theme-original/Root';
 import { ProgressProvider } from '@site/src/components/progress/ProgressContext';
+import RewardToaster from '@site/src/components/reward/RewardToast';
 
-export default function Root({ children }: { children?: React.ReactNode }) {
+export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <ProgressProvider>
-      <OriginalRoot>{children}</OriginalRoot>
+      {children}
+      <RewardToaster />
     </ProgressProvider>
   );
 }

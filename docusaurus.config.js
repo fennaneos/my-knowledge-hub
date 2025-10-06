@@ -51,7 +51,7 @@ const config = {
       logo: { alt: 'Dev Logo', src: 'img/beard_logo.png' },
       items: [
         { type: 'doc', docId: 'intro', position: 'left', label: 'Documentation' },
-        { href: 'https://github.com/your-repo', label: 'GitHub', position: 'right' },
+        { href: 'https://github.com/fennaneos', label: 'GitHub', position: 'right' },
       ],
     },
     footer: {

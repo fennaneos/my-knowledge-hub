@@ -1,21 +1,47 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
-type ProgressValue = { ratio: number; stars: number };
-type ProgressMap = Record<string, ProgressValue>;
+type PackState = { ratio: number; weight: number };
+type ChapterState = {
+  packs: Record<string, PackState>;
+  stars: number;     // 0..3 (rounded to 0.5)
+  ratio: number;     // 0..1  (stars/3)
+};
+type ProgressMap = Record<string, ChapterState>;
 
 type Ctx = {
-  get: (id: string) => ProgressValue | undefined;
-  set: (id: string, value: ProgressValue) => void;
+  get: (id: string) => ChapterState | undefined;
+  set: (id: string, value: ChapterState) => void;
+  clear: (id: string) => void;
   all: ProgressMap;
 };
 
 const ProgressContext = createContext<Ctx>({
   get: () => undefined,
   set: () => {},
+  clear: () => {},
   all: {},
 });
 
-const LS_KEY = 'lux:progress';
+export function useProgress() {
+  return useContext(ProgressContext);
+}
+
+const LS_KEY = 'lux:progress.v2';
+
+function clamp01(x: number) {
+  return Math.max(0, Math.min(1, x));
+}
+function roundHalf(x: number) {
+  return Math.round(x * 2) / 2;
+}
 
 function readLS(): ProgressMap {
   try {
@@ -27,7 +53,6 @@ function readLS(): ProgressMap {
     return {};
   }
 }
-
 function writeLS(obj: ProgressMap) {
   localStorage.setItem(LS_KEY, JSON.stringify(obj));
 }
@@ -38,15 +63,30 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   mapRef.current = map;
 
   const get = useCallback((id: string) => mapRef.current[id], []);
-  const set = useCallback((id: string, value: ProgressValue) => {
+  const set = useCallback((id: string, value: ChapterState) => {
     const next: ProgressMap = { ...mapRef.current, [id]: value };
     setMap(next);
     writeLS(next);
-    // notify any listeners (sidebar, etc.)
-    document.dispatchEvent(new CustomEvent('lux:progress', { detail: { id, ...value } }));
+    // fire a lightweight event for sidebar shimmer (NOT consumed by this context)
+    document.dispatchEvent(
+      new CustomEvent('lux:progress', {
+        detail: { id, ratio: value.ratio, stars: value.stars, from: 'context' },
+      })
+    );
+  }, []);
+  const clear = useCallback((id: string) => {
+    const next: ProgressMap = { ...mapRef.current };
+    delete next[id];
+    setMap(next);
+    writeLS(next);
+    document.dispatchEvent(
+      new CustomEvent('lux:progress', {
+        detail: { id, ratio: 0, stars: 0, from: 'context' },
+      })
+    );
   }, []);
 
-  // sync when other tabs/windows update
+  // Cross-tab sync
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key !== LS_KEY) return;
@@ -56,11 +96,43 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const value = useMemo<Ctx>(() => ({ get, set, all: map }), [get, set, map]);
+  // ✅ Primary listener: per-pack progress
+  useEffect(() => {
+    const onPack = (e: Event) => {
+      const { id, packId, ratio, weight } = (e as CustomEvent).detail || {};
+      if (!id || !packId) return;
+
+      const prev: ChapterState =
+        mapRef.current[id] ?? { packs: {}, stars: 0, ratio: 0 };
+
+      const packs: Record<string, PackState> = {
+        ...prev.packs,
+        [packId]: {
+          ratio: clamp01(Number(ratio ?? 0)),
+          weight: Number(weight ?? 0),
+        },
+      };
+
+      // aggregate
+      const starsExact = Object.values(packs).reduce(
+        (sum, p) => sum + (p.weight || 0) * (p.ratio || 0),
+        0
+      );
+      const stars = Math.min(3, roundHalf(starsExact));
+      const chapterRatio = Math.min(1, starsExact / 3);
+
+      set(id, { packs, stars, ratio: chapterRatio });
+    };
+
+    document.addEventListener('lux:pack-progress', onPack as EventListener);
+    return () =>
+      document.removeEventListener('lux:pack-progress', onPack as EventListener);
+  }, [set]);
+
+  const value = useMemo<Ctx>(
+    () => ({ get, set, clear, all: map }),
+    [get, set, clear, map]
+  );
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
-}
-
-export function useProgress() {
-  return useContext(ProgressContext);
 }

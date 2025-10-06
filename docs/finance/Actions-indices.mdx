@@ -2,6 +2,24 @@ import HeroLux from '@site/src/components/heroLux';
 import LuxButton from '@site/src/components/LuxButton';
 import StatBadge from '@site/src/components/StatBadge';
 
+import ChapterStars from '@site/src/components/progress/ChapterStars';
+import ClearStarsButton from '@site/src/components/progress/ClearStarsButton';
+
+<div
+  className="gold-glow"
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: '1px solid rgba(212,175,55,0.25)',
+    borderRadius: 12,
+    padding: '8px 14px',
+    marginBottom: '12px',
+  }}
+>
+  <ChapterStars chapterId="actions-indices" showLabel />
+  <ClearStarsButton chapterId="actions-indices" />
+</div>
 
 
 <HeroLux
@@ -21,7 +39,7 @@ import StatBadge from '@site/src/components/StatBadge';
 
 
 ---
-
+<ClearStarsButton chapterId="actions-indices" />
 <div className="gold-glow" style={{border:'1px solid rgba(212,175,55,0.25)', borderRadius:12, padding:'1rem'}}>
   # 1. Actions & Indices  
 **Definition**  
@@ -345,6 +363,7 @@ import TryIt from '@site/src/components/tryit/TryIt';
 
 <TryIt
   id="forward-exercises"
+  chapterId="actions-indices"
   defaultOpen
   paywall="none"
   title="Forward Pricing Practice"

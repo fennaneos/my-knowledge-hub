@@ -1,5 +1,5 @@
 // src/components/tryit/TryIt.tsx
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import PythonTerminalPane, {
   type PythonTerminalPaneHandle,
   type TestPack,
@@ -9,15 +9,13 @@ type TryItProps = {
   id?: string;
   title?: string;
   intro?: string;
-  // Optional progress plumbing:
-  chapterId?: string; // e.g. "finance/actions-indices"
-  // Reserved props — safe to accept but unused here
+  chapterId?: string; // Used for per-chapter star tracking
   paywall?: 'none' | 'gumroad';
   gumroadUrl?: string;
   gumroadProductId?: string;
   defaultOpen?: boolean;
   ctaLabel?: string;
-  scaffold?: string; // allow passing initial scaffold from MDX
+  scaffold?: string;
   testName?: string;
   tests?: { expr: string; expected?: number; tol?: number }[];
 };
@@ -33,7 +31,7 @@ export default function TryIt({
 }: TryItProps) {
   const termRef = useRef<PythonTerminalPaneHandle>(null);
 
-  /** ---------------- Scaffolds + Hints (defaults) ---------------- */
+  /** ---------------- Default Scaffolds ---------------- */
   const scaffoldOne = useMemo(
     () =>
       scaffold ||
@@ -43,12 +41,6 @@ export default function TryIt({
         'def compute_forward(S, r, q, T):',
         '    """Return forward F = S * exp((r - q) * T)."""',
         '    # TODO: implement the correct formula',
-        '    return 0',
-        '',
-        'def compute_index_forward(weights, spots, r, q_vec, T):',
-        '    """Return Σ w_i * S_i * exp((r - q_i) * T)."""',
-        '    # TODO: loop over assets, sum weighted forwards',
-        '    # Make sure all lists have the same length.',
         '    return 0',
         '',
       ].join('\n'),
@@ -89,7 +81,7 @@ export default function TryIt({
     []
   );
 
-  /** ---------------- Tests (defaults or from props) ---------------- */
+  /** ---------------- Test Packs ---------------- */
   const forwardPack: TestPack = useMemo(() => {
     if (tests && tests.length) {
       return { name: testName || 'Tests', tests: tests.map(t => ({ expr: t.expr, expected: t.expected, tol: t.tol })) };
@@ -156,24 +148,44 @@ export default function TryIt({
     []
   );
 
-  /** ---------------- Sidebar stars integration (optional) ---------------- */
-  const handleTestsDone = (summary: { name: string; total: number; passed: number }) => {
-    // Dispatch the global progress event that your sidebar listens for
-    // (DocSidebarItem/Link/index.tsx uses "lux:progress")
-    if (typeof document !== 'undefined' && chapterId) {
-      const ratio = summary.total > 0 ? summary.passed / summary.total : 0;
-      const stars = Math.min(3, Math.max(0, Math.round(ratio * 3))); // 0..3
-      document.dispatchEvent(
-        new CustomEvent('lux:progress', {
-          detail: {
-            id: chapterId,
-            ratio,
-            stars,
-          },
-        })
-      );
-    }
-  };
+  /** ---------------- Per-pack completion → dispatch to context ----------------
+   * Each pack has weight = 1.5★ (TOTAL 3★ across 2 packs).
+   * We emit lux:pack-progress and let ProgressContext make stars monotonic.
+   */
+// --- at top with other hooks ---
+// inside TryIt.tsx (as you have now)
+const PACK_WEIGHT = 1.5;
+const pendingPackIdsRef = useRef<string[]>([]);
+
+const handlePackDone = (summary: { name: string; total: number; passed: number }) => {
+  if (!chapterId) return;
+  const packId = pendingPackIdsRef.current.shift() || 'forward';
+  const ratio = summary.total > 0 ? (summary.passed || 0) / summary.total : 0;
+
+  document.dispatchEvent(
+    new CustomEvent('lux:pack-progress', {
+      detail: { id: chapterId, packId, ratio, weight: PACK_WEIGHT, from: 'tryit' },
+    })
+  );
+};
+
+const runRelevantTests = () => {
+  const api = termRef.current;
+  if (!api) return;
+  api.switchToTests?.();
+
+  const code = api.getCode();
+  const hasForward = /def\s+compute_forward\s*\(/.test(code);
+  const hasIndex = /def\s+compute_index_forward\s*\(/.test(code);
+
+  pendingPackIdsRef.current = [];
+
+  if (hasForward) { pendingPackIdsRef.current.push('forward'); api.runTests(forwardPack); }
+  if (hasIndex)   { pendingPackIdsRef.current.push('index');   api.runTests(indexPack); }
+
+  if (!hasForward && !hasIndex) { pendingPackIdsRef.current.push('forward'); api.runTests(forwardPack); }
+};
+
 
   /** ---------------- UI state ---------------- */
   const [openOneHint, setOpenOneHint] = useState(false);
@@ -185,11 +197,9 @@ export default function TryIt({
     const api = termRef.current;
     if (!api) return;
     setActive(which);
-    if (which === 'one') {
-      // keep the full scaffold if provided from props; else inject the one-asset only
-      const code = scaffold
-        ? scaffold
-        : [
+    const code =
+      which === 'one'
+        ? [
             'import math',
             '',
             'def compute_forward(S, r, q, T):',
@@ -197,11 +207,7 @@ export default function TryIt({
             '    # TODO: implement the correct formula',
             '    return 0',
             '',
-          ].join('\n');
-      api.insertCode(code);
-    } else {
-      const code = scaffold
-        ? scaffold
+          ].join('\n')
         : [
             'import math',
             '',
@@ -212,24 +218,7 @@ export default function TryIt({
             '    return 0',
             '',
           ].join('\n');
-      api.insertCode(code);
-    }
-  };
-
-  // Only the tests relevant to defined function(s)
-  const runRelevantTests = () => {
-    const api = termRef.current;
-    if (!api) return;
-    api.switchToTests?.();
-
-    const code = api.getCode();
-    const hasForward = /def\s+compute_forward\s*\(/.test(code);
-    const hasIndex = /def\s+compute_index_forward\s*\(/.test(code);
-
-    if (hasForward) api.runTests(forwardPack);
-    if (hasIndex) api.runTests(indexPack);
-
-    if (!hasForward && !hasIndex) api.runTests(forwardPack);
+    api.insertCode(code);
   };
 
   /** ---------------- Render ---------------- */
@@ -241,7 +230,7 @@ export default function TryIt({
         <p style={{ marginTop: 6, color: '#cfcfcf' }}>{intro}</p>
       </div>
 
-      {/* Two tiles: define forward + define index */}
+      {/* Tiles */}
       <div
         className="gold-glow"
         style={{
@@ -256,7 +245,6 @@ export default function TryIt({
       >
         {/* One-asset forward */}
         <div
-          className="index-tile"
           style={{
             border: '1px solid rgba(212,175,55,0.28)',
             borderRadius: 14,
@@ -294,9 +282,8 @@ export default function TryIt({
           )}
         </div>
 
-        {/* Index forward (vector) */}
+        {/* Index forward */}
         <div
-          className="index-tile"
           style={{
             border: '1px solid rgba(212,175,55,0.28)',
             borderRadius: 14,
@@ -335,17 +322,9 @@ export default function TryIt({
         </div>
       </div>
 
-      {/* Editor + Right pane */}
       <div style={{ height: 16 }} />
-      <PythonTerminalPane
-        ref={termRef}
-        height={560}
-        autoFocus
-        initialCode={scaffoldOne}
-        onTestsDone={handleTestsDone}
-      />
+      <PythonTerminalPane ref={termRef} height={560} autoFocus initialCode={scaffoldOne} onTestsDone={handlePackDone} />
 
-      {/* Bottom: Run Tests */}
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
         <button
           className="button button--success"

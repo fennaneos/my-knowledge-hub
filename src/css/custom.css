@@ -426,4 +426,3 @@ html { scroll-behavior: smooth; }
   transition: color .4s ease, text-shadow .4s ease;
 }
 
-.sidebar-stars .sidebar-star--full { box-shadow: 0 0 8px rgba(212,175,55,.25); }
