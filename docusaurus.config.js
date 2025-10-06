@@ -3,6 +3,8 @@
 
 import math from 'remark-math';
 import katex from 'rehype-katex';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -13,8 +15,8 @@ const config = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  organizationName: 'your-org', // Replace with your GitHub org/user
-  projectName: 'your-repo-name', // Replace with your repo name
+  organizationName: 'your-org',
+  projectName: 'your-repo-name',
 
   presets: [
     [
@@ -22,14 +24,13 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: '/', // ✅ docs served at /
+          routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          // ✅ Enable LaTeX math in MDX
           remarkPlugins: [math],
           rehypePlugins: [katex],
         },
         blog: false,
-        pages: false, // ✅ Disable non-doc pages
+        pages: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -37,7 +38,6 @@ const config = {
     ],
   ],
 
-  // ✅ Load KaTeX CSS so math renders correctly
   stylesheets: [
     {
       href: 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
@@ -48,34 +48,38 @@ const config = {
   themeConfig: {
     navbar: {
       title: '',
-      logo: {
-        alt: 'Dev Logo',
-        src: 'img/beard_logo.png',
-      },
+      logo: { alt: 'Dev Logo', src: 'img/beard_logo.png' },
       items: [
-        {
-          type: 'doc',
-          docId: 'intro',
-          position: 'left',
-          label: 'Documentation',
-        },
-        {
-          href: 'https://github.com/your-repo', // replace with actual repo
-          label: 'GitHub',
-          position: 'right',
-        },
+        { type: 'doc', docId: 'intro', position: 'left', label: 'Documentation' },
+        { href: 'https://github.com/your-repo', label: 'GitHub', position: 'right' },
       ],
     },
     footer: {
       style: 'dark',
       copyright: `Copyright © ${new Date().getFullYear()} DevDocs.`,
     },
-    colorMode: {
-      defaultMode: 'dark',
-      disableSwitch: true,
-      respectPrefersColorScheme: false,
-    },
+    colorMode: { defaultMode: 'dark', disableSwitch: true, respectPrefersColorScheme: false },
   },
+
+  // ✅ Local plugin to inject webpack aliases (v3-compatible)
+  plugins: [
+    function codemirrorAliasPlugin() {
+      return {
+        name: 'codemirror-alias-plugin',
+        configureWebpack() {
+          return {
+            resolve: {
+              alias: {
+                '@codemirror/state': require.resolve('@codemirror/state'),
+                '@codemirror/view': require.resolve('@codemirror/view'),
+                '@codemirror/language': require.resolve('@codemirror/language'),
+              },
+            },
+          };
+        },
+      };
+    },
+  ],
 };
 
 export default config;
