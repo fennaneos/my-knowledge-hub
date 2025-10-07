@@ -8,24 +8,23 @@ import React, {
   useState,
 } from 'react';
 
-type PackState = { ratio: number; weight: number };
+type PackState = { ratio: number; weight: number }; // ratio 0..1, weight e.g. 1.5
 type ChapterState = {
   packs: Record<string, PackState>;
-  stars: number;     // 0..3 (rounded to 0.5)
-  ratio: number;     // 0..1  (stars/3)
+  stars: number;           // total stars for chapter (0..3)
+  ratio: number;           // normalized 0..1 (stars/3)
 };
+
 type ProgressMap = Record<string, ChapterState>;
 
 type Ctx = {
-  get: (id: string) => ChapterState | undefined;
-  set: (id: string, value: ChapterState) => void;
+  get: (id: string) => { stars: number; ratio: number } | undefined;
   clear: (id: string) => void;
   all: ProgressMap;
 };
 
 const ProgressContext = createContext<Ctx>({
   get: () => undefined,
-  set: () => {},
   clear: () => {},
   all: {},
 });
@@ -34,14 +33,7 @@ export function useProgress() {
   return useContext(ProgressContext);
 }
 
-const LS_KEY = 'lux:progress.v2';
-
-function clamp01(x: number) {
-  return Math.max(0, Math.min(1, x));
-}
-function roundHalf(x: number) {
-  return Math.round(x * 2) / 2;
-}
+const LS_KEY = 'lux:progress.v2'; // new key to avoid clashes with older structure
 
 function readLS(): ProgressMap {
   try {
@@ -53,8 +45,24 @@ function readLS(): ProgressMap {
     return {};
   }
 }
+
 function writeLS(obj: ProgressMap) {
   localStorage.setItem(LS_KEY, JSON.stringify(obj));
+}
+
+function clamp(v: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+function recomputeChapter(ch: ChapterState): ChapterState {
+  // Sum weighted progress across packs; cap at 3★
+  const stars = clamp(
+    Object.values(ch.packs).reduce((acc, p) => acc + (p.weight || 0) * clamp(p.ratio || 0, 0, 1), 0),
+    0,
+    3
+  );
+  const ratio = stars / 3;
+  return { ...ch, stars, ratio };
 }
 
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
@@ -62,27 +70,18 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const mapRef = useRef(map);
   mapRef.current = map;
 
-  const get = useCallback((id: string) => mapRef.current[id], []);
-  const set = useCallback((id: string, value: ChapterState) => {
-    const next: ProgressMap = { ...mapRef.current, [id]: value };
-    setMap(next);
-    writeLS(next);
-    // fire a lightweight event for sidebar shimmer (NOT consumed by this context)
-    document.dispatchEvent(
-      new CustomEvent('lux:progress', {
-        detail: { id, ratio: value.ratio, stars: value.stars, from: 'context' },
-      })
-    );
+  const get = useCallback((id: string) => {
+    const ch = mapRef.current[id];
+    return ch ? { stars: ch.stars || 0, ratio: ch.ratio || 0 } : undefined;
   }, []);
+
   const clear = useCallback((id: string) => {
-    const next: ProgressMap = { ...mapRef.current };
+    const next = { ...mapRef.current };
     delete next[id];
     setMap(next);
     writeLS(next);
     document.dispatchEvent(
-      new CustomEvent('lux:progress', {
-        detail: { id, ratio: 0, stars: 0, from: 'context' },
-      })
+      new CustomEvent('lux:progress', { detail: { id, ratio: 0, stars: 0, from: 'context-clear' } })
     );
   }, []);
 
@@ -96,43 +95,51 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // ✅ Primary listener: per-pack progress
+  // Listen to per-pack updates from TryIt
   useEffect(() => {
-    const onPack = (e: Event) => {
-      const { id, packId, ratio, weight } = (e as CustomEvent).detail || {};
-      if (!id || !packId) return;
+    const onPackProgress = (e: Event) => {
+      const d = (e as CustomEvent).detail || {};
+      const chapterId = String(d.id || '');
+      const packId = String(d.packId || '');
+      const ratio = Number.isFinite(d.ratio) ? d.ratio : 0;
+      const weight = Number.isFinite(d.weight) ? d.weight : 1.5; // default weight
 
-      const prev: ChapterState =
-        mapRef.current[id] ?? { packs: {}, stars: 0, ratio: 0 };
+      if (!chapterId || !packId) return;
 
-      const packs: Record<string, PackState> = {
-        ...prev.packs,
-        [packId]: {
-          ratio: clamp01(Number(ratio ?? 0)),
-          weight: Number(weight ?? 0),
-        },
+      const prev = mapRef.current;
+      const prevChapter: ChapterState = prev[chapterId] || { packs: {}, stars: 0, ratio: 0 };
+      const newPacks: Record<string, PackState> = {
+        ...prevChapter.packs,
+        [packId]: { ratio: clamp(ratio, 0, 1), weight: weight > 0 ? weight : 1.5 },
       };
+      const nextChapter = recomputeChapter({ ...prevChapter, packs: newPacks });
+      const next: ProgressMap = { ...prev, [chapterId]: nextChapter };
 
-      // aggregate
-      const starsExact = Object.values(packs).reduce(
-        (sum, p) => sum + (p.weight || 0) * (p.ratio || 0),
-        0
+      setMap(next);
+      writeLS(next);
+
+      // Emit normalized rollup for sidebar widgets
+      document.dispatchEvent(
+        new CustomEvent('lux:progress', {
+          detail: { id: chapterId, ratio: nextChapter.ratio, stars: nextChapter.stars, from: 'context' },
+        })
       );
-      const stars = Math.min(3, roundHalf(starsExact));
-      const chapterRatio = Math.min(1, starsExact / 3);
 
-      set(id, { packs, stars, ratio: chapterRatio });
+      // If fully completed (3★), optionally show a small toast
+      if (nextChapter.stars >= 3) {
+        document.dispatchEvent(
+          new CustomEvent('lux:reward', {
+            detail: { type: 'chapter_complete', id: chapterId, label: 'Chapter Complete!', stars: 3 },
+          })
+        );
+      }
     };
 
-    document.addEventListener('lux:pack-progress', onPack as EventListener);
-    return () =>
-      document.removeEventListener('lux:pack-progress', onPack as EventListener);
-  }, [set]);
+    document.addEventListener('lux:pack-progress', onPackProgress as EventListener);
+    return () => document.removeEventListener('lux:pack-progress', onPackProgress as EventListener);
+  }, []);
 
-  const value = useMemo<Ctx>(
-    () => ({ get, set, clear, all: map }),
-    [get, set, clear, map]
-  );
+  const value = useMemo<Ctx>(() => ({ get, clear, all: map }), [get, clear, map]);
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 }

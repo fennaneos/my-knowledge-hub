@@ -1,5 +1,4 @@
-// src/components/tryit/TryIt.tsx
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import PythonTerminalPane, {
   type PythonTerminalPaneHandle,
   type TestPack,
@@ -148,51 +147,26 @@ export default function TryIt({
     []
   );
 
-  /** ---------------- Per-pack completion → dispatch to context ----------------
-   * Each pack has weight = 1.5★ (TOTAL 3★ across 2 packs).
-   * We emit lux:pack-progress and let ProgressContext make stars monotonic.
-   */
-// --- at top with other hooks ---
-// inside TryIt.tsx (as you have now)
-const PACK_WEIGHT = 1.5;
-const pendingPackIdsRef = useRef<string[]>([]);
+  /** ---------------- Per-pack → context (1.5★ each) ---------------- */
+  const PACK_WEIGHT = 1.5;
+  const pendingPackIdsRef = useRef<string[]>([]);
 
-const handlePackDone = (summary: { name: string; total: number; passed: number }) => {
-  if (!chapterId) return;
-  const packId = pendingPackIdsRef.current.shift() || 'forward';
-  const ratio = summary.total > 0 ? (summary.passed || 0) / summary.total : 0;
+  const handlePackDone = (summary: { name: string; total: number; passed: number }) => {
+    if (!chapterId) return;
+    const packId = pendingPackIdsRef.current.shift() || 'forward';
+    const ratio = summary.total > 0 ? (summary.passed || 0) / summary.total : 0;
 
-  document.dispatchEvent(
-    new CustomEvent('lux:pack-progress', {
-      detail: { id: chapterId, packId, ratio, weight: PACK_WEIGHT, from: 'tryit' },
-    })
-  );
-};
+    document.dispatchEvent(
+      new CustomEvent('lux:pack-progress', {
+        detail: { id: chapterId, packId, ratio, weight: PACK_WEIGHT, from: 'tryit' },
+      })
+    );
+  };
 
-const runRelevantTests = () => {
-  const api = termRef.current;
-  if (!api) return;
-  api.switchToTests?.();
-
-  const code = api.getCode();
-  const hasForward = /def\s+compute_forward\s*\(/.test(code);
-  const hasIndex = /def\s+compute_index_forward\s*\(/.test(code);
-
-  pendingPackIdsRef.current = [];
-
-  if (hasForward) { pendingPackIdsRef.current.push('forward'); api.runTests(forwardPack); }
-  if (hasIndex)   { pendingPackIdsRef.current.push('index');   api.runTests(indexPack); }
-
-  if (!hasForward && !hasIndex) { pendingPackIdsRef.current.push('forward'); api.runTests(forwardPack); }
-};
-
-
-  /** ---------------- UI state ---------------- */
   const [openOneHint, setOpenOneHint] = useState(false);
   const [openIdxHint, setOpenIdxHint] = useState(false);
   const [active, setActive] = useState<'one' | 'idx'>('one');
 
-  /** ---------------- Actions ---------------- */
   const insertScaffold = (which: 'one' | 'idx') => {
     const api = termRef.current;
     if (!api) return;
@@ -219,6 +193,30 @@ const runRelevantTests = () => {
             '',
           ].join('\n');
     api.insertCode(code);
+  };
+
+  const runRelevantTests = () => {
+    const api = termRef.current;
+    if (!api) return;
+    api.switchToTests?.();
+
+    const code = api.getCode();
+    const hasForward = /def\s+compute_forward\s*\(/.test(code);
+    const hasIndex = /def\s+compute_index_forward\s*\(/.test(code);
+
+    pendingPackIdsRef.current = [];
+    if (hasForward) {
+      pendingPackIdsRef.current.push('forward');
+      api.runTests(forwardPack);
+    }
+    if (hasIndex) {
+      pendingPackIdsRef.current.push('index');
+      api.runTests(indexPack);
+    }
+    if (!hasForward && !hasIndex) {
+      pendingPackIdsRef.current.push('forward');
+      api.runTests(forwardPack);
+    }
   };
 
   /** ---------------- Render ---------------- */
