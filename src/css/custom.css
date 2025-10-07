@@ -426,3 +426,90 @@ html { scroll-behavior: smooth; }
   transition: color .4s ease, text-shadow .4s ease;
 }
 
+/* ====== Doc hero opt-out (no frame/border) ====== */
+.no-frame {
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Title overlay layout for the intro hero */
+.intro-hero {
+  position: relative;
+  min-height: calc(100vh - 64px); /* room for navbar */
+  display: grid;
+  place-items: center;
+  z-index: 1; /* above the fixed canvas */
+}
+.intro-hero__inner {
+  text-align: center;
+  color: #cfe7ff;
+  padding: 0 1rem;
+}
+.intro-hero__title {
+  margin: 0;
+  font-size: clamp(2.2rem, 4vw + 1rem, 3.5rem);
+  color: #66ccff; /* fits blue theme */
+}
+.intro-hero__sub {
+  margin-top: .6rem;
+  font-size: 1.1rem;
+  color: #b9cbe0;
+}
+
+/* Remove framed box styles around the top hero so the canvas blends in */
+.nebula-hero-reset {
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* If your MDX wrapper enforces padding, neutralize just for the hero */
+.markdown > .nebula-hero-reset {
+  padding: 0 !important;
+}
+
+/* Optional: make the hero push right up to the content bounds */
+.markdown > h1:first-of-type + .nebula-hero-reset {
+  margin-top: 0.25rem;
+}
+
+/* Make the hero full-bleed across the viewport even inside Docusaurus container */
+.nebula-fullbleed {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw; /* true full width */
+  overflow: hidden;
+  /* navbar height variable for layout calc (used by component) */
+  --navbar-h: 64px;
+}
+
+/* Remove any “gold frame” around the hero block */
+.nebula-hero-reset {
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* When the hero is placed directly after the H1, tighten spacing */
+.markdown > h1:first-of-type + .nebula-hero-reset {
+  margin-top: .25rem;
+}
+
+/* If your theme wraps MDX sections with a framed container, neutralize for hero */
+.markdown > .nebula-hero-reset,
+.theme-doc-markdown > .nebula-hero-reset {
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
