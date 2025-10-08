@@ -1,0 +1,63 @@
+/* Full-viewport section with your image */
+.heroRoot {
+  position: relative;
+  min-height: calc(100vh - var(--ifm-navbar-height));
+  width: 100%;
+  background-image: url('/img/blue-background.jpg'); /* << your image */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+/* Subtle dark blue overlay to blend with your site theme */
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(1200px 800px at 50% 30%,
+    rgba(2, 12, 24, 0.35) 0%,
+    rgba(2, 12, 24, 0.65) 55%,
+    rgba(2, 12, 24, 0.82) 100%);
+  pointer-events: none;
+}
+
+/* Centered text block */
+.heroContent {
+  position: relative;  /* above overlay */
+  text-align: center;
+  padding: 2rem 1rem;
+  max-width: 880px;
+}
+
+/* Gold gradient title (matches your docs headings) */
+.heroTitle {
+  margin: 0 0 .5rem;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--gold-1, #d4af37), var(--gold-2, #ffd700));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.heroTag {
+  color: #e8edf5;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  opacity: .95;
+  margin: .25rem 0 1.25rem;
+}
+
+/* Buttons row */
+.heroCtas {
+  display: inline-flex;
+  gap: .7rem;
+}
+
+/* Make sure buttons pop on the image */
+.heroCtas .button {
+  border-radius: 12px;
+  border: 1px solid rgba(212,175,55,0.25);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}

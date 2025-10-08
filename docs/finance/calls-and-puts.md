@@ -4,6 +4,25 @@ title: Calls and Puts Explained
 sidebar_label: Calls & Puts
 ---
 
+import ChapterStars from '@site/src/components/progress/ChapterStars';
+import ClearStarsButton from '@site/src/components/progress/ClearStarsButton';
+
+<div
+  className="gold-glow"
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: '1px solid rgba(212,175,55,0.25)',
+    borderRadius: 12,
+    padding: '8px 14px',
+    marginBottom: '12px',
+  }}
+>
+  <ChapterStars chapterId="calls-and-puts" showLabel />
+  <ClearStarsButton chapterId="calls-and-puts" />
+</div>
+
 # 📈 Call and Put Options
 
 Options are the **building blocks of derivatives markets**.  
@@ -480,3 +499,128 @@ Because returns are not lognormal — markets price fat tails and jumps → smil
 - Understanding **Greeks** is crucial for risk management and interviews  
 
 ---
+import TryIt from '@site/src/components/tryit/TryIt';
+
+## 🧪 Hands-On — One terminal, 4 exercises
+
+<TryIt
+  id="cp-all"
+  chapterId="calls-and-puts"
+  hideTiles
+  packWeight={0.75}
+  starTotal={3}
+  title="Calls & Puts — Mini Lab"
+  intro="Complete the functions below, then click Run tests. Each exercise has 2 tests and is worth ¾★."
+  packs={[
+    {
+      id: 'parity_put',
+      name: '⭐ Put–Call Parity (solve P)',
+      detect: "def\\s+put_from_parity\\s*\\(",
+      scaffold: `import math
+
+def put_from_parity(C, S, K, r, q, T):
+    \"\"\"Return P from put–call parity with continuous yield q:
+    C - P = S*e^{-qT} - K*e^{-rT}
+    => P = C - (S*e^{-qT} - K*e^{-rT})
+    \"\"\"
+    # TODO: implement the formula correctly
+    return 0
+`,
+      hint: `💡 Hint
+Use math.exp(x) for e^x. With continuous yield q:
+P = C - (S*e^{-qT} - K*e^{-rT})`,
+      weight: 0.75,
+      tests: [
+        {
+          expr: ['import math','C=8.5; S=100; K=100; r=0.05; q=0.0; T=1','put_from_parity(C,S,K,r,q,T)'].join('; '),
+          expected: Number((8.5 - (100*Math.exp(-0*1) - 100*Math.exp(-0.05*1))).toFixed(6)), // 3.622942
+          tol: 1e-3,
+        },
+        {
+          expr: ['import math','C=14; S=120; K=110; r=0.03; q=0.01; T=0.5','put_from_parity(C,S,K,r,q,T)'].join('; '),
+          expected: Number((14 - (120*Math.exp(-0.01*0.5) - 110*Math.exp(-0.03*0.5))).toFixed(6)), // ~2.960816
+          tol: 1e-3,
+        },
+      ],
+    },
+    {
+      id: 'parity_call',
+      name: '⭐ Put–Call Parity (solve C)',
+      detect: "def\\s+call_from_parity\\s*\\(",
+      scaffold: `import math
+
+def call_from_parity(P, S, K, r, q, T):
+    \"\"\"Return C from put–call parity:
+    C = P + (S*e^{-qT} - K*e^{-rT})
+    \"\"\"
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+C = P + (S*e^{-qT} - K*e^{-rT})`,
+      weight: 0.75,
+      tests: [
+        {
+          expr: ['import math','P=3.622942; S=100; K=100; r=0.05; q=0.0; T=1','call_from_parity(P,S,K,r,q,T)'].join('; '),
+          expected: Number((3.622942 + (100*Math.exp(-0*1) - 100*Math.exp(-0.05*1))).toFixed(6)), // 8.5
+          tol: 1e-3,
+        },
+        {
+          expr: ['import math','P=2.960816; S=120; K=110; r=0.03; q=0.01; T=0.5','call_from_parity(P,S,K,r,q,T)'].join('; '),
+          expected: Number((2.960816 + (120*Math.exp(-0.01*0.5) - 110*Math.exp(-0.03*0.5))).toFixed(6)), // ~14
+          tol: 1e-3,
+        },
+      ],
+    },
+    {
+      id: 'call_payoff',
+      name: '⭐ Call payoff',
+      detect: "def\\s+call_payoff\\s*\\(",
+      scaffold: `def call_payoff(S, K):
+    \"\"\"Return (S - K)+.\"\"\"
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Max of (S-K) and 0.`,
+      weight: 0.75,
+      tests: [
+        {
+          expr: ['S=105; K=100','call_payoff(S,K)'].join('; '),
+          expected: 5,
+          tol: 1e-9,
+        },
+        {
+          expr: ['S=95; K=100','call_payoff(S,K)'].join('; '),
+          expected: 0,
+          tol: 1e-9,
+        },
+      ],
+    },
+    {
+      id: 'put_payoff',
+      name: '⭐ Put payoff',
+      detect: "def\\s+put_payoff\\s*\\(",
+      scaffold: `def put_payoff(S, K):
+    \"\"\"Return (K - S)+.\"\"\"
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Max of (K-S) and 0.`,
+      weight: 0.75,
+      tests: [
+        {
+          expr: ['S=95; K=100','put_payoff(S,K)'].join('; '),
+          expected: 5,
+          tol: 1e-9,
+        },
+        {
+          expr: ['S=105; K=100','put_payoff(S,K)'].join('; '),
+          expected: 0,
+          tol: 1e-9,
+        },
+      ],
+    },
+  ]}
+/>

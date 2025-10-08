@@ -526,3 +526,380 @@ $$
 
 🖤 **Designed for the LuxQuant Volatility Handbook**  
 Gold-on-black edition ✨
+
+
+import TryIt from '@site/src/components/tryit/TryIt';
+
+## 9. Practical Lab — FX Symmetry (10 mini exercises)
+
+<TryIt
+  id="fx-lab"
+  chapterId="fx"
+  title="FX Volatility & Symmetry — Lab"
+  intro="Implement the functions described below, then click Run tests. Each exercise has 2 tests; all ten together total 3★."
+  starTotal={3}
+  packWeight={0.3}
+  packs={[
+    {
+      id: 'fwd',
+      name: '⭐ FX Forward (rd − rf)',
+      detect: "def\\s+fx_forward\\s*\\(",
+      question: `Implement fx_forward(S, rd, rf, T) returning the FX forward:
+F = S * exp((rd - rf) * T).`,
+      scaffold: `import math
+
+def fx_forward(S, rd, rf, T):
+    """Return F = S * exp((rd - rf) * T)."""
+    # TODO
+    return 0
+`,
+      hint: `F = S * exp((rd - rf) * T). Use math.exp.`,
+      weight: 0.3,
+      tests: [
+        {
+          expr: ['import math','S=1.10; rd=0.04; rf=0.02; T=1','fx_forward(S,rd,rf,T)'].join('; '),
+          expected: Number((1.10 * Math.exp((0.04-0.02)*1)).toFixed(6)),
+          tol: 1e-6,
+        },
+        {
+          expr: ['import math','S=0.95; rd=0.01; rf=0.03; T=2','fx_forward(S,rd,rf,T)'].join('; '),
+          expected: Number((0.95 * Math.exp((0.01-0.03)*2)).toFixed(6)),
+          tol: 1e-6,
+        },
+      ],
+    },
+
+    {
+      id: 'inv',
+      name: '⭐ Reciprocal Rate',
+      detect: "def\\s+invert_rate\\s*\\(",
+      question: `Implement invert_rate(S) that returns 1/S (the reciprocal quote).`,
+      scaffold: `def invert_rate(S):
+    """Return 1/S (reciprocal FX rate)."""
+    # TODO
+    return 0.0
+`,
+      hint: `Just return 1.0 / S.`,
+      weight: 0.3,
+      tests: [
+        { expr: 'invert_rate(1.20)', expected: Number((1/1.20).toFixed(6)), tol: 1e-6 },
+        { expr: 'invert_rate(0.95)', expected: Number((1/0.95).toFixed(6)), tol: 1e-6 },
+      ],
+    },
+
+    {
+      id: 'mirrorK',
+      name: '⭐ Mirrored Strike K′=S0²/K',
+      detect: "def\\s+mirror_strike\\s*\\(",
+      question: `Implement mirror_strike(S0, K) that returns K' = S0**2 / K (strike mapping under reciprocal symmetry).`,
+      scaffold: `def mirror_strike(S0, K):
+    """Return mirrored strike K' = S0**2 / K."""
+    # TODO
+    return 0.0
+`,
+      hint: `K_prime = (S0**2) / K.`,
+      weight: 0.3,
+      tests: [
+        { expr: 'mirror_strike(1.10, 1.20)', expected: Number(((1.10**2)/1.20).toFixed(6)), tol: 1e-6 },
+        { expr: 'mirror_strike(0.90, 1.05)', expected: Number(((0.90**2)/1.05).toFixed(6)), tol: 1e-6 },
+      ],
+    },
+
+    {
+      id: 'call',
+      name: '⭐ FX Black–Scholes Call',
+      detect: "def\\s+call_fx_bs\\s*\\(",
+      question: `Implement call_fx_bs(S, K, T, rd, rf, sigma) using FX BS:
+C = S*e^{-rf T} N(d1) - K*e^{-rd T} N(d2),
+d1 = [ln(S/K) + (rd - rf + 0.5 σ²)T] / (σ√T), d2=d1-σ√T.`,
+      scaffold: `import math
+
+def _Nd(x):
+    # standard normal CDF N(x)
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+def call_fx_bs(S, K, T, rd, rf, sigma):
+    """FX Black–Scholes call price with two rates."""
+    # TODO: implement per formula (use _Nd for N)
+    return 0.0
+`,
+      hint: `Compute d1, d2, then S*exp(-rf*T)*N(d1) - K*exp(-rd*T)*N(d2).`,
+      weight: 0.3,
+      tests: [
+        {
+          expr: [
+            'import math',
+            'S=1.10; K=1.05; T=1.0; rd=0.02; rf=0.01; sigma=0.20',
+            'call_fx_bs(S,K,T,rd,rf,sigma)'
+          ].join('; '),
+          expected: (() => {
+            const S=1.10,K=1.05,T=1,rd=0.02,rf=0.01,s=0.20;
+            const d1=(Math.log(S/K)+(rd-rf+0.5*s*s)*T)/(s*Math.sqrt(T));
+            const d2=d1-s*Math.sqrt(T);
+            const Nd=(x)=>0.5*(1+erf(x/Math.SQRT2));
+            function erf(x){ // quick erf
+              // Abramowitz-Stegun approximation
+              const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+              const sign=x<0?-1:1; const t=1/(1+p*Math.abs(x));
+              const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+              return sign*y;
+            }
+            return Number((S*Math.exp(-rf*T)*Nd(d1) - K*Math.exp(-rd*T)*Nd(d2)).toFixed(6));
+          })(),
+          tol: 1e-4,
+        },
+        {
+          expr: [
+            'import math',
+            'S=0.95; K=1.00; T=0.5; rd=0.03; rf=0.02; sigma=0.15',
+            'call_fx_bs(S,K,T,rd,rf,sigma)'
+          ].join('; '),
+          expected: (() => {
+            const S=0.95,K=1.00,T=0.5,rd=0.03,rf=0.02,s=0.15;
+            const d1=(Math.log(S/K)+(rd-rf+0.5*s*s)*T)/(s*Math.sqrt(T));
+            const d2=d1-s*Math.sqrt(T);
+            const Nd=(x)=>0.5*(1+erf(x/Math.SQRT2));
+            function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;const t=1/(1+p*Math.abs(x));const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return sign*y;}
+            return Number((S*Math.exp(-rf*T)*Nd(d1) - K*Math.exp(-rd*T)*Nd(d2)).toFixed(6));
+          })(),
+          tol: 1e-4,
+        },
+      ],
+    },
+
+    {
+      id: 'put-parity',
+      name: '⭐ Put from Call (FX Parity)',
+      detect: "def\\s+put_from_call_parity_fx\\s*\\(",
+      question: `Implement put_from_call_parity_fx(C, S, K, rd, rf, T):
+P = C - (S*e^{-rf T} - K*e^{-rd T}).`,
+      scaffold: `import math
+
+def put_from_call_parity_fx(C, S, K, rd, rf, T):
+    """Return put from call using FX parity."""
+    # TODO
+    return 0.0
+`,
+      hint: `P = C - (S*exp(-rf*T) - K*exp(-rd*T)).`,
+      weight: 0.3,
+      tests: [
+        {
+          expr: [
+            'import math',
+            'S=1.10; K=1.05; T=1; rd=0.02; rf=0.01; sigma=0.20',
+            '_Nd=lambda x: 0.5*(1+math.erf(x/math.sqrt(2)))',
+            'd1=(math.log(S/K)+(rd-rf+0.5*sigma*sigma)*T)/(sigma*math.sqrt(T))',
+            'd2=d1-sigma*math.sqrt(T)',
+            'C = S*math.exp(-rf*T)*_Nd(d1) - K*math.exp(-rd*T)*_Nd(d2)',
+            'put_from_call_parity_fx(C,S,K,rd,rf,T)'
+          ].join('; '),
+          expected: (() => {
+            const S=1.10,K=1.05,T=1,rd=0.02,rf=0.01,s=0.20;
+            const d1=(Math.log(S/K)+(rd-rf+0.5*s*s)*T)/(s*Math.sqrt(T));
+            const d2=d1-s*Math.sqrt(T);
+            const Nd=(x)=>0.5*(1+erf(x/Math.SQRT2));
+            function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;const t=1/(1+p*Math.abs(x));const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return sign*y;}
+            const C=S*Math.exp(-rf*T)*Nd(d1) - K*Math.exp(-rd*T)*Nd(d2);
+            const P=C - (S*Math.exp(-rf*T) - K*Math.exp(-rd*T));
+            return Number(P.toFixed(6));
+          })(),
+          tol: 1e-4,
+        },
+        {
+          expr: [
+            'import math',
+            'S=0.98; K=1.00; T=0.75; rd=0.015; rf=0.01; sigma=0.18',
+            '_Nd=lambda x: 0.5*(1+math.erf(x/math.sqrt(2)))',
+            'd1=(math.log(S/K)+(rd-rf+0.5*sigma*sigma)*T)/(sigma*math.sqrt(T))',
+            'd2=d1-sigma*math.sqrt(T)',
+            'C = S*math.exp(-rf*T)*_Nd(d1) - K*math.exp(-rd*T)*_Nd(d2)',
+            'put_from_call_parity_fx(C,S,K,rd,rf,T)'
+          ].join('; '),
+          expected: (() => {
+            const S=0.98,K=1.00,T=0.75,rd=0.015,rf=0.01,s=0.18;
+            const d1=(Math.log(S/K)+(rd-rf+0.5*s*s)*T)/(s*Math.sqrt(T));
+            const d2=d1-s*Math.sqrt(T);
+            const Nd=(x)=>0.5*(1+erf(x/Math.SQRT2));
+            function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;const t=1/(1+p*Math.abs(x));const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return sign*y;}
+            const C=S*Math.exp(-rf*T)*Nd(d1) - K*Math.exp(-rd*T)*Nd(d2);
+            const P=C - (S*Math.exp(-rf*T) - K*Math.exp(-rd*T));
+            return Number(P.toFixed(6));
+          })(),
+          tol: 1e-4,
+        },
+      ],
+    },
+
+    {
+      id: 'put',
+      name: '⭐ FX Black–Scholes Put',
+      detect: "def\\s+put_fx_bs\\s*\\(",
+      question: `Implement put_fx_bs(S, K, T, rd, rf, sigma):
+P = K e^{-rd T} N(-d2) - S e^{-rf T} N(-d1).`,
+      scaffold: `import math
+
+def _Nd(x):
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+def put_fx_bs(S, K, T, rd, rf, sigma):
+    """FX Black–Scholes put price with two rates."""
+    # TODO
+    return 0.0
+`,
+      hint: `Use d1/d2 as in the call; then K e^{-rdT} N(-d2) - S e^{-rfT} N(-d1).`,
+      weight: 0.3,
+      tests: [
+        {
+          expr: [
+            'import math',
+            'S=1.10; K=1.05; T=1.0; rd=0.02; rf=0.01; sigma=0.20',
+            'put_fx_bs(S,K,T,rd,rf,sigma)'
+          ].join('; '),
+          expected: (() => {
+            const S=1.10,K=1.05,T=1,rd=0.02,rf=0.01,s=0.20;
+            const d1=(Math.log(S/K)+(rd-rf+0.5*s*s)*T)/(s*Math.sqrt(T));
+            const d2=d1-s*Math.sqrt(T);
+            const Nd=(x)=>0.5*(1+erf(x/Math.SQRT2));
+            function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;const t=1/(1+p*Math.abs(x));const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return sign*y;}
+            const P=K*Math.exp(-rd*T)*Nd(-d2) - S*Math.exp(-rf*T)*Nd(-d1);
+            return Number(P.toFixed(6));
+          })(),
+          tol: 1e-4,
+        },
+        {
+          expr: [
+            'import math',
+            'S=1.02; K=1.05; T=0.5; rd=0.03; rf=0.02; sigma=0.25',
+            'put_fx_bs(S,K,T,rd,rf,sigma)'
+          ].join('; '),
+          expected: (() => {
+            const S=1.02,K=1.05,T=0.5,rd=0.03,rf=0.02,s=0.25;
+            const d1=(Math.log(S/K)+(rd-rf+0.5*s*s)*T)/(s*Math.sqrt(T));
+            const d2=d1-s*Math.sqrt(T);
+            const Nd=(x)=>0.5*(1+erf(x/Math.SQRT2));
+            function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;const t=1/(1+p*Math.abs(x));const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return sign*y;}
+            const P=K*Math.exp(-rd*T)*Nd(-d2) - S*Math.exp(-rf*T)*Nd(-d1);
+            return Number(P.toFixed(6));
+          })(),
+          tol: 1e-4,
+        },
+      ],
+    },
+
+    {
+      id: 'fwd-prod',
+      name: '⭐ Forward Reciprocity (Product = 1)',
+      detect: "def\\s+forward_product_one\\s*\\(",
+      question: `Implement forward_product_one(S0, rd, rf, T) that returns
+fx_forward(S0,rd,rf,T) * fx_forward(1/S0, rf, rd, T).
+It should be ≈ 1 by reciprocity.`,
+      scaffold: `import math
+
+def forward_product_one(S0, rd, rf, T):
+    """Return F_dom * F_for where F_dom = S0 e^{(rd-rf)T}, F_for = (1/S0) e^{(rf-rd)T}."""
+    # TODO
+    return 0.0
+`,
+      hint: `Compute F1 = S0*exp((rd-rf)*T) and F2 = (1/S0)*exp((rf-rd)*T); return F1*F2.`,
+      weight: 0.3,
+      tests: [
+        {
+          expr: 'forward_product_one(1.10, 0.03, 0.01, 2.0)',
+          expected: Number((1.0).toFixed(6)),
+          tol: 1e-6,
+        },
+        {
+          expr: 'forward_product_one(0.92, 0.015, 0.025, 3.5)',
+          expected: Number((1.0).toFixed(6)),
+          tol: 1e-6,
+        },
+      ],
+    },
+
+    {
+      id: 'mirror-invert',
+      name: '⭐ Mirror Then Mirror Back',
+      detect: "def\\s+mirror_then_back\\s*\\(",
+      question: `Implement mirror_then_back(S0, K) that computes K' = S0**2/K,
+then K'' = S0**2/K', and returns |K'' − K|. It should be ≈ 0.`,
+      scaffold: `def mirror_then_back(S0, K):
+    """Return absolute error after mirroring twice (should be ~0)."""
+    # TODO
+    return 0.0
+`,
+      hint: `Kp = S0**2 / K; Km = S0**2 / Kp; return abs(Km - K).`,
+      weight: 0.3,
+      tests: [
+        { expr: 'mirror_then_back(1.10, 1.25)', expected: 0.0, tol: 1e-12 },
+        { expr: 'mirror_then_back(0.97, 0.85)', expected: 0.0, tol: 1e-12 },
+      ],
+    },
+
+    {
+      id: 'logm',
+      name: '⭐ |log-moneyness|',
+      detect: "def\\s+log_moneyness_abs\\s*\\(",
+      question: `Implement log_moneyness_abs(S0, K) that returns |ln(K/S0)| (the symmetric log-moneyness used in FX smiles).`,
+      scaffold: `import math
+
+def log_moneyness_abs(S0, K):
+    """Return abs(log(K/S0))."""
+    # TODO
+    return 0.0
+`,
+      hint: `Use math.log and abs.`,
+      weight: 0.3,
+      tests: [
+        { expr: 'log_moneyness_abs(1.00, 1.10)', expected: Number((Math.abs(Math.log(1.10/1.00))).toFixed(12)), tol: 1e-10 },
+        { expr: 'log_moneyness_abs(1.00, 0.90)', expected: Number((Math.abs(Math.log(0.90/1.00))).toFixed(12)), tol: 1e-10 },
+      ],
+    },
+
+    {
+      id: 'smile',
+      name: '⭐ Symmetric Smile Model',
+      detect: "def\\s+smile_sigma\\s*\\(",
+      question: `Implement smile_sigma(sigma_atm, a, gamma, S0, K):
+σ = σ_ATM + a * |ln(K/S0)|^γ`,
+      scaffold: `import math
+
+def smile_sigma(sigma_atm, a, gamma, S0, K):
+    """Return sigma_atm + a * |ln(K/S0)|**gamma."""
+    # TODO
+    return 0.0
+`,
+      hint: `Compute x = abs(log(K/S0)); return sigma_atm + a*(x**gamma).`,
+      weight: 0.3,
+      tests: [
+        {
+          expr: 'smile_sigma(0.11, 0.035, 1.4, 1.00, 1.20)',
+          expected: Number((0.11 + 0.035*Math.pow(Math.abs(Math.log(1.20/1.00)), 1.4)).toFixed(12)),
+          tol: 1e-10,
+        },
+        {
+          expr: 'smile_sigma(0.11, 0.035, 1.4, 1.00, 0.80)',
+          expected: Number((0.11 + 0.035*Math.pow(Math.abs(Math.log(0.80/1.00)), 1.4)).toFixed(12)),
+          tol: 1e-10,
+        },
+      ],
+    },
+
+    {
+      id: 'drift-foreign',
+      name: '⭐ Drift Under Foreign Measure',
+      detect: "def\\s+foreign_measure_drift\\s*\\(",
+      question: `Implement foreign_measure_drift(rd, rf) returning (rf − rd), the drift of S under the foreign measure.`,
+      scaffold: `def foreign_measure_drift(rd, rf):
+    """Return rf - rd."""
+    # TODO
+    return 0.0
+`,
+      hint: `Just rf - rd.`,
+      weight: 0.3,
+      tests: [
+        { expr: 'foreign_measure_drift(0.03, 0.01)', expected: -0.02, tol: 1e-12 },
+        { expr: 'foreign_measure_drift(0.01, 0.025)', expected: 0.015, tol: 1e-12 },
+      ],
+    },
+  ]}
+/>

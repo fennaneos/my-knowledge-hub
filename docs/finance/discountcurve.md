@@ -365,3 +365,214 @@ The pseudo-inverse method provides a **robust mathematical framework** for const
 - Ensures the curve is consistent with market data **in the least-squares sense**.  
 
 This approach is particularly useful for structured products pricing, where a stable and arbitrage-free discount curve is essential.
+
+import TryIt from '@site/src/components/tryit/TryIt';
+
+## 9. Practical Lab — Convexity Adjustment (10 mini exercises)
+
+<TryIt
+  id="convexity-lab"
+  chapterId="convexity-adjustment"
+  hideTiles
+  packWeight={0.3}
+  starTotal={3}
+  title="Forwards vs Futures — Convexity Lab"
+  intro="These ten short exercises help you understand how forwards differ from futures when rates are stochastic. Each task has a visible question and two tests — write clean, correct Python!"
+  packs={[
+
+    {
+      id: 'fwd-nodiv',
+      name: '⭐ 1. Forward (no dividends)',
+      question: 'Implement a function returning the forward price without dividends, using the cost-of-carry formula \( F = S e^{rT} \).',
+      detect: "def\\s+forward_price\\s*\\(",
+      scaffold: `import math
+
+def forward_price(S, r, T):
+    """Forward with no dividends: F = S * exp(r*T)."""
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Use math.exp for e^(x).`,
+      tests: [
+        { expr: "import math; forward_price(100, 0.03, 2)", expected: 106.183655, tol: 1e-3 },
+        { expr: "import math; forward_price(80, 0.015, 1.5)", expected: 81.820403, tol: 1e-3 },
+      ],
+    },
+
+    {
+      id: 'fwd-yield',
+      name: '⭐ 2. Forward with continuous yield',
+      question: 'Extend the previous function to include a continuous dividend yield \(q\): \( F = S e^{(r-q)T} \).',
+      detect: "def\\s+forward_yield\\s*\\(",
+      scaffold: `import math
+
+def forward_yield(S, r, q, T):
+    """Forward with continuous yield q: F = S * exp((r-q)*T)."""
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Subtract q from r inside the exponent.`,
+      tests: [
+        { expr: "import math; forward_yield(120, 0.04, 0.02, 1.0)", expected: 122.424161, tol: 1e-3 },
+        { expr: "import math; forward_yield(95, 0.03, 0.015, 2.0)", expected: 97.893181, tol: 1e-3 },
+      ],
+    },
+
+    {
+      id: 'bank-account',
+      name: '⭐ 3. Bank Account Growth',
+      question: 'Simulate a bank account under continuous compounding: \( B_T = B_0 e^{\\sum r_iΔt_i} \). Use given short rates and time steps.',
+      detect: "def\\s+bank_account\\s*\\(",
+      scaffold: `import math
+
+def bank_account(B0, rates, dts):
+    """Accumulate a bank account under varying short rates."""
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Sum r_i·Δt_i, exponentiate once.`,
+      tests: [
+        { expr: "import math; bank_account(1.0, [0.02,0.025,0.03], [0.5,0.5,1.0])", expected: 1.053903, tol: 1e-6 },
+        { expr: "import math; bank_account(2.0, [0.01,0.012], [0.5,0.5])", expected: 2.023062, tol: 1e-6 },
+      ],
+    },
+
+    {
+      id: 'zerocoupon',
+      name: '⭐ 4. Zero-Coupon Discount Factor',
+      question: 'Compute the discount factor for a zero-coupon bond: \( P(t,T) = e^{-\\sum r_iΔt_i} \).',
+      detect: "def\\s+zero_coupon\\s*\\(",
+      scaffold: `import math
+
+def zero_coupon(rates, dts):
+    """Return discount factor P(t,T) = exp(-sum(r_i * dt_i))."""
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Same as the bank account but with a negative sign.`,
+      tests: [
+        { expr: "import math; zero_coupon([0.02,0.025,0.03], [0.5,0.5,1.0])", expected: 0.948854, tol: 1e-6 },
+        { expr: "import math; zero_coupon([0.01,0.012,0.013], [0.25,0.25,0.5])", expected: 0.987226, tol: 1e-6 },
+      ],
+    },
+
+    {
+      id: 'fut-eq-fwd-det',
+      name: '⭐ 5. Futures = Forward (deterministic rates)',
+      question: 'Show that when interest rates are deterministic, futures and forward prices are equal — compute \( F_{fut} - F_{fwd} = 0 \).',
+      detect: "def\\s+futures_minus_forward_det\\s*\\(",
+      scaffold: `import math
+
+def futures_minus_forward_det(S, r, q, T):
+    """Return F_fut - F_fwd under deterministic rates."""
+    # TODO
+    return 1.0  # placeholder
+`,
+      hint: `💡 Hint
+Use F = S * exp((r-q)*T) for both.`,
+      tests: [
+        { expr: "import math; futures_minus_forward_det(100,0.03,0.01,1.0)", expected: 0.0, tol: 1e-9 },
+        { expr: "import math; futures_minus_forward_det(250,0.02,0.015,2.0)", expected: 0.0, tol: 1e-9 },
+      ],
+    },
+
+    {
+      id: 'cov-pop',
+      name: '⭐ 6. Population Covariance',
+      question: 'Implement the population covariance \( \\text{Cov}(X,Y) = \\frac{1}{n}\\sum_i(x_i-\\bar{x})(y_i-\\bar{y}) \).',
+      detect: "def\\s+cov_pop\\s*\\(",
+      scaffold: `def cov_pop(x, y):
+    """Population covariance: mean((x - mean_x)*(y - mean_y))."""
+    # TODO
+    return 0.0
+`,
+      hint: `💡 Hint
+Compute means, then average product of deviations.`,
+      tests: [
+        { expr: "cov_pop([1,2,3], [2,4,6])", expected: 4.0/3.0, tol: 1e-9 },
+        { expr: "cov_pop([0,2,4,6], [1,1,3,5])", expected: 2.0, tol: 1e-9 },
+      ],
+    },
+
+    {
+      id: 'fut-approx',
+      name: '⭐ 7. Convexity Approximation Formula',
+      question: 'Derive the convexity adjustment approximation \( F_{fut} \\approx F_{fwd} e^{0.5σ_Sσ_rρτ^2} \).',
+      detect: "def\\s+fut_from_fwd_approx\\s*\\(",
+      scaffold: `import math
+
+def fut_from_fwd_approx(F_fwd, sigmaS, sigmaR, rho, tau):
+    """Futures ≈ Forward × exp(0.5 * sigmaS * sigmaR * rho * tau^2)."""
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Use math.exp(0.5 * σS * σr * ρ * τ²).`,
+      tests: [
+        { expr: "import math; fut_from_fwd_approx(105, 0.2, 0.01, 0.3, 2.0)", expected: 105.126076, tol: 1e-6 },
+        { expr: "import math; fut_from_fwd_approx(90, 0.25, 0.015, -0.2, 1.5)", expected: 89.924512, tol: 1e-6 },
+      ],
+    },
+
+    {
+      id: 'adj-diff',
+      name: '⭐ 8. Convexity Difference',
+      question: 'Compute the difference between futures and forward: \( Δ = F_{fwd}(e^{0.5σ_Sσ_rρτ²}-1) \).',
+      detect: "def\\s+convexity_diff\\s*\\(",
+      scaffold: `import math
+
+def convexity_diff(F_fwd, sigmaS, sigmaR, rho, tau):
+    """Return F_fut − F_fwd via convexity adjustment."""
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Compute exp(...)-1, multiply by F_fwd.`,
+      tests: [
+        { expr: "import math; convexity_diff(105, 0.2, 0.01, 0.3, 2.0)", expected: 0.126076, tol: 1e-6 },
+        { expr: "import math; convexity_diff(200, 0.15, 0.02, 0.1, 3.0)", expected: 0.090152, tol: 1e-6 },
+      ],
+    },
+
+    {
+      id: 'sign-from-rho',
+      name: '⭐ 9. Correlation Sign',
+      question: 'Return "positive", "zero", or "negative" depending on the sign of correlation \(ρ\).',
+      detect: "def\\s+adj_sign\\s*\\(",
+      scaffold: `def adj_sign(rho):
+    """Return 'positive' if rho>0, 'zero' if 0, else 'negative'."""
+    # TODO
+    return ''
+`,
+      hint: `💡 Hint
+Simple if/elif/else logic.`,
+      tests: [
+        { expr: "adj_sign(0.35)", expected: "positive", tol: 0 },
+        { expr: "adj_sign(0.0)", expected: "zero", tol: 0 },
+      ],
+    },
+
+    {
+      id: 'fwd-from-expectation',
+      name: '⭐ 10. Forward from Expectation',
+      question: 'Under the T-forward measure, compute \( F = \\frac{E[S_T]}{P(t,T)} \).',
+      detect: "def\\s+forward_from_expectation\\s*\\(",
+      scaffold: `def forward_from_expectation(E_ST, P_tT):
+    """Compute forward from expected future spot and discount factor."""
+    # TODO
+    return 0
+`,
+      hint: `💡 Hint
+Return E_ST / P_tT.`,
+      tests: [
+        { expr: "forward_from_expectation(100.0, 0.95)", expected: 105.26315789473685, tol: 1e-9 },
+        { expr: "forward_from_expectation(130.0, 0.9)", expected: 144.44444444444446, tol: 1e-9 },
+      ],
+    },
+
+  ]}
+/>

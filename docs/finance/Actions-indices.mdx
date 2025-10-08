@@ -356,16 +356,104 @@ This yield process can be correlated with volatility and equity price, affecting
 
 ---
 
-import TryIt from '@site/src/components/tryit/TryIt';
 
 ## 16. Practical Exercises — Try it Yourself
+
+import TryIt from '@site/src/components/tryit/TryIt';
 
 <TryIt
   id="forward-exercises"
   chapterId="actions-indices"
-  defaultOpen
-  paywall="none"
   title="Forward Pricing Practice"
-  intro="Define forward functions, then run the auto-tests (PASS/FAIL with numeric outputs)."
-/>
+  intro="Define the functions below, then run the tests. PASS/FAIL with numeric outputs appear on the Tests tab."
+  starTotal={3}
+  packs={[
+    {
+      id: 'one',
+      name: '⭐ Define one-asset forward',
+      detect: "def\\s+compute_forward\\s*\\(",
+      scaffold: `import math
 
+def compute_forward(S, r, q, T):
+    """Return forward F = S * exp((r - q) * T)."""
+    # TODO: implement the correct formula
+    return 0
+`,
+      hint: `💡 Hint (one-asset forward)
+
+F = S * exp((r - q) * T)
+
+import math
+def compute_forward(S, r, q, T):
+    return S * math.exp((r - q) * T)
+`,
+      weight: 1.5,
+      tests: [
+        {
+          expr: ['import math','S=100; r=0.02; q=0.03; T=1','compute_forward(S,r,q,T)'].join('; '),
+          expected: Number((100 * Math.exp((0.02 - 0.03) * 1)).toFixed(6)),
+          tol: 1e-3,
+        },
+        {
+          expr: ['import math','S=250; r=0.01; q=0.00; T=2','compute_forward(S,r,q,T)'].join('; '),
+          expected: Number((250 * Math.exp((0.01 - 0.0) * 2)).toFixed(6)),
+          tol: 1e-3,
+        },
+      ],
+    },
+    {
+      id: 'idx',
+      name: '⭐ Define index forward (vector)',
+      detect: "def\\s+compute_index_forward\\s*\\(",
+      scaffold: `import math
+
+def compute_index_forward(weights, spots, r, q_vec, T):
+    """Return Σ w_i * S_i * exp((r - q_i) * T)."""
+    # TODO: loop over assets, sum weighted forwards
+    # Make sure all lists have the same length.
+    return 0
+`,
+      hint: `💡 Hint (index forward)
+
+F_index = Σ w_i * S_i * exp((r - q_i) * T)
+
+import math
+def compute_index_forward(weights, spots, r, q_vec, T):
+    assert len(weights) == len(spots) == len(q_vec)
+    total = 0.0
+    for i in range(len(weights)):
+        total += weights[i] * spots[i] * math.exp((r - q_vec[i]) * T)
+    return total
+`,
+      weight: 1.5,
+      tests: [
+        {
+          expr: [
+            'import math',
+            'w=[0.5,0.3,0.2]; S=[100,50,80]; q=[0.03,0.02,0.04]; r=0.02; T=1',
+            'compute_index_forward(w,S,r,q,T)',
+          ].join('; '),
+          expected: (() => {
+            const w=[0.5,0.3,0.2], S=[100,50,80], q=[0.03,0.02,0.04], r=0.02, T=1;
+            let acc=0; for (let i=0;i<w.length;i++) acc += w[i]*S[i]*Math.exp((r-q[i])*T);
+            return Number(acc.toFixed(6));
+          })(),
+          tol: 1e-3,
+        },
+        {
+          expr: [
+            'import math',
+            'w=[0.4,0.6]; S=[120,80]; q=[0.015,0.025]; r=0.02; T=1.5',
+            'compute_index_forward(w,S,r,q,T)',
+          ].join('; '),
+          expected: (() => {
+            const w=[0.4,0.6], S=[120,80], q=[0.015,0.025], r=0.02, T=1.5;
+            let acc=0; for (let i=0;i<w.length;i++) acc += w[i]*S[i]*Math.exp((r-q[i])*T);
+            return Number(acc.toFixed(6));
+          })(),
+          tol: 1e-3,
+        },
+      ],
+    },
+  ]}
+/>

@@ -730,3 +730,207 @@ So, in a **Price vs Time** graph:
 Convexity is about **curvature of expectations**.  
 Which contract (forward vs futures) looks convex depends on whether you look across **yields** or across **time horizons**.
 
+import TryIt from '@site/src/components/tryit/TryIt';
+
+## Practice — overview
+
+- **Discount factor (deterministic)** — implement `discount_factor(r, t, T)` → `e^{-r(T−t)}`.
+- **Forward with yield** — `forward_yield(S, r, q, t, T)` → `S * e^{(r−q)(T−t)}`.
+- **Fut=Fwd when rates deterministic** — `fut_minus_fwd_det(S, r, q, t, T)` → should be ~0.
+- **Convexity approx (asset & rates vol)** — `futures_from_forward_approx(Ff, sigmaS, sigmaR, rho, tau)`.
+- **Eurodollar (rate) convexity** — `eurodollar_fut_from_fwd(Ff, sigmaR, tau)` ≈ `Ff + 0.5 σ_r^2 τ^2`.
+- **Sign from correlation** — `convexity_sign(rho)` → `'fut>fwd' | 'equal' | 'fut<fwd'`.
+- **Forward from expectation** — `forward_from_expect(E_ST, P_tT)` → `E_ST / P_tT`.
+- **Measure link (cov form)** — `futures_from_cov(Ff, cov, denom)` → `Ff + cov/denom`.
+- **Diff from cov term** — `diff_from_cov(cov, denom)` → `cov/denom`.
+- **Sensitivity (delta adjustment)** — `convexity_delta(Ff, sigmaS, sigmaR, rho, tau)` → `F_fut − F_fwd`.
+
+## Practice — Try it Yourself
+
+<TryIt
+  id="convexity-lab"
+  chapterId="convexity-adjustment"
+  title="Forwards vs Futures — Convexity Lab"
+  intro="Implement each function, then Run tests. 10 exercises, 2 tests each. Each pass is worth 0.3★ (total 3★)."
+  hideTiles
+  starTotal={3}
+  packWeight={0.3}
+  packs={[
+    {
+      id: 'df_det',
+      name: '⭐ Discount factor (deterministic)',
+      desc: 'Return exp(-r*(T - t)).',
+      detect: "def\\s+discount_factor\\s*\\(",
+      scaffold: `import math
+
+def discount_factor(r, t, T):
+    """Deterministic discount factor: exp(-r*(T - t))"""
+    # TODO
+    return 0.0
+`,
+      hint: `Use math.exp(-r*(T - t))`,
+      tests: [
+        { expr: ['import math','discount_factor(0.05,0.0,1.0)'].join('; '), expected: Number((Math.exp(-0.05*1.0)).toFixed(12)), tol: 1e-10 },
+        { expr: ['import math','discount_factor(0.03,0.5,2.0)'].join('; '), expected: Number((Math.exp(-0.03*(2.0-0.5))).toFixed(12)), tol: 1e-10 },
+      ],
+    },
+    {
+      id: 'fwd_yield',
+      name: '⭐ Forward with yield',
+      desc: 'F = S * exp((r - q)*(T - t)).',
+      detect: "def\\s+forward_yield\\s*\\(",
+      scaffold: `import math
+
+def forward_yield(S, r, q, t, T):
+    """Forward with continuous dividend yield q"""
+    # TODO
+    return 0.0
+`,
+      hint: `S * math.exp((r - q)*(T - t))`,
+      tests: [
+        { expr: ['import math','forward_yield(100,0.02,0.03,0,1)'].join('; '), expected: Number((100*Math.exp((0.02-0.03)*1)).toFixed(9)), tol: 1e-6 },
+        { expr: ['import math','forward_yield(250,0.01,0.00,0,2)'].join('; '), expected: Number((250*Math.exp((0.01-0.0)*2)).toFixed(9)), tol: 1e-6 },
+      ],
+    },
+    {
+      id: 'det_eq',
+      name: '⭐ Futures = Forward when rates deterministic',
+      desc: 'Return F_fut - F_fwd (should be ~0).',
+      detect: "def\\s+fut_minus_fwd_det\\s*\\(",
+      scaffold: `import math
+
+def fut_minus_fwd_det(S, r, q, t, T):
+    """With deterministic r, futures and forward match. Return their difference."""
+    # TODO: compute both via forward_yield and subtract
+    return 0.0
+`,
+      hint: `Use your forward_yield for both; difference ~0`,
+      tests: [
+        { expr: ['import math','S=120;r=0.02;q=0.01;t=0;T=1.5','fut_minus_fwd_det(S,r,q,t,T)'].join('; '), expected: 0.0, tol: 1e-9 },
+        { expr: ['import math','S=80;r=0.03;q=0.0;t=0;T=0.75','fut_minus_fwd_det(S,r,q,t,T)'].join('; '), expected: 0.0, tol: 1e-9 },
+      ],
+    },
+    {
+      id: 'convexity_exp',
+      name: '⭐ Convexity approx (σ_S, σ_r, ρ)',
+      desc: 'F_fut ≈ F_fwd * exp(0.5*σS*σr*ρ*τ²). Return F_fut.',
+      detect: "def\\s+futures_from_forward_approx\\s*\\(",
+      scaffold: `import math
+
+def futures_from_forward_approx(Ff, sigmaS, sigmaR, rho, tau):
+    """Hull-style convexity approx: F_fut = Ff * exp(0.5*sigmaS*sigmaR*rho*tau*tau)"""
+    # TODO
+    return 0.0
+`,
+      hint: `exp(0.5*sigmaS*sigmaR*rho*tau*tau)`,
+      tests: [
+        { expr: ['import math','Ff=100;sS=0.2;sR=0.01;rho=0.5;tau=1.0','futures_from_forward_approx(Ff,sS,sR,rho,tau)'].join('; '),
+          expected: Number((100*Math.exp(0.5*0.2*0.01*0.5*1.0*1.0)).toFixed(9)), tol: 1e-6 },
+        { expr: ['import math','Ff=150;sS=0.25;sR=0.02;rho=-0.3;tau=2.0','futures_from_forward_approx(Ff,sS,sR,rho,tau)'].join('; '),
+          expected: Number((150*Math.exp(0.5*0.25*0.02*(-0.3)*4)).toFixed(9)), tol: 1e-6 },
+      ],
+    },
+    {
+      id: 'eurodollar',
+      name: '⭐ Eurodollar convexity (rate only)',
+      desc: 'F_fut ≈ F_fwd + 0.5 * σ_r² * τ².',
+      detect: "def\\s+eurodollar_fut_from_fwd\\s*\\(",
+      scaffold: `import math
+
+def eurodollar_fut_from_fwd(Ff, sigmaR, tau):
+    """Approx: F_fut = Ff + 0.5*sigmaR*sigmaR*tau*tau"""
+    # TODO
+    return 0.0
+`,
+      hint: `0.5*sigmaR*sigmaR*tau*tau`,
+      tests: [
+        { expr: ['import math','eurodollar_fut_from_fwd(5.0,0.01,1.0)'].join('; '), expected: Number((5.0 + 0.5*0.01*0.01*1.0*1.0).toFixed(12)), tol: 1e-12 },
+        { expr: ['import math','eurodollar_fut_from_fwd(3.2,0.02,0.5)'].join('; '), expected: Number((3.2 + 0.5*0.02*0.02*0.25).toFixed(12)), tol: 1e-12 },
+      ],
+    },
+    {
+      id: 'sign',
+      name: '⭐ Sign from correlation',
+      desc: "Return 'fut>fwd' if ρ>0, 'equal' if ρ=0, 'fut<fwd' if ρ<0.",
+      detect: "def\\s+convexity_sign\\s*\\(",
+      scaffold: `def convexity_sign(rho):
+    """Return 'fut>fwd' | 'equal' | 'fut<fwd' based on rho"""
+    # TODO
+    return ''
+`,
+      hint: `Simple if/elif/else on rho`,
+      tests: [
+        { expr: ['convexity_sign(0.4)'].join('; '), expected: 'fut>fwd', tol: 0 },
+        { expr: ['convexity_sign(-0.1)'].join('; '), expected: 'fut<fwd', tol: 0 },
+      ],
+    },
+    {
+      id: 'fwd_from_expect',
+      name: '⭐ Forward from expectation',
+      desc: 'F_fwd = E[S_T] / P(t,T).',
+      detect: "def\\s+forward_from_expect\\s*\\(",
+      scaffold: `def forward_from_expect(E_ST, P_tT):
+    """Forward under risk-neutral: E[S_T] divided by zero-coupon price P(t,T)."""
+    # TODO
+    return 0.0
+`,
+      hint: `Just division (assume P_tT>0)`,
+      tests: [
+        { expr: ['forward_from_expect(105.0, 0.95)'].join('; '), expected: Number((105/0.95).toFixed(9)), tol: 1e-6 },
+        { expr: ['forward_from_expect(200.0, 0.90)'].join('; '), expected: Number((200/0.90).toFixed(9)), tol: 1e-6 },
+      ],
+    },
+    {
+      id: 'cov_link',
+      name: '⭐ Measure link (cov form)',
+      desc: 'F_fut = F_fwd + cov/denom.',
+      detect: "def\\s+futures_from_cov\\s*\\(",
+      scaffold: `def futures_from_cov(Ff, cov, denom):
+    """General link: F_fut = Ff + cov/denom (denom > 0)."""
+    # TODO
+    return 0.0
+`,
+      hint: `Return Ff + cov/denom`,
+      tests: [
+        { expr: ['futures_from_cov(100.0, 0.25, 1.0)'].join('; '), expected: 100.25, tol: 1e-12 },
+        { expr: ['futures_from_cov(80.0, -0.10, 2.0)'].join('; '), expected: 79.95, tol: 1e-12 },
+      ],
+    },
+    {
+      id: 'cov_diff',
+      name: '⭐ Diff from cov term',
+      desc: 'Δ = cov/denom.',
+      detect: "def\\s+diff_from_cov\\s*\\(",
+      scaffold: `def diff_from_cov(cov, denom):
+    """Return cov/denom (assume denom>0)."""
+    # TODO
+    return 0.0
+`,
+      hint: `One-liner`,
+      tests: [
+        { expr: ['diff_from_cov(0.06, 3.0)'].join('; '), expected: 0.02, tol: 1e-12 },
+        { expr: ['diff_from_cov(-0.09, 0.5)'].join('; '), expected: -0.18, tol: 1e-12 },
+      ],
+    },
+    {
+      id: 'conv_delta',
+      name: '⭐ Sensitivity: F_fut − F_fwd',
+      desc: 'Return delta = Ff*(exp(0.5*σS*σr*ρ*τ²) − 1).',
+      detect: "def\\s+convexity_delta\\s*\\(",
+      scaffold: `import math
+
+def convexity_delta(Ff, sigmaS, sigmaR, rho, tau):
+    """Return F_fut - F_fwd under the log-linear approx."""
+    # TODO
+    return 0.0
+`,
+      hint: `Ff*(math.exp(0.5*sigmaS*sigmaR*rho*tau*tau)-1.0)`,
+      tests: [
+        { expr: ['import math','convexity_delta(120,0.2,0.02,0.4,1.0)'].join('; '),
+          expected: Number((120*(Math.exp(0.5*0.2*0.02*0.4*1)-1)).toFixed(9)), tol: 1e-6 },
+        { expr: ['import math','convexity_delta(90,0.25,0.015,-0.3,2.0)'].join('; '),
+          expected: Number((90*(Math.exp(0.5*0.25*0.015*(-0.3)*4)-1)).toFixed(9)), tol: 1e-6 },
+      ],
+    },
+  ]}
+/>

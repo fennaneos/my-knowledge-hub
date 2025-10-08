@@ -1,0 +1,70 @@
+---
+id: intro
+title: Introduction
+slug: /
+---
+
+{/* Full-width hero background */}
+<div
+  style={{
+    position: 'fixed',
+    top: 'var(--ifm-navbar-height)',
+    left: 'var(--doc-sidebar-width, 300px)',
+    right: 0,
+    bottom: 0,
+    backgroundImage: 'url(/img/blue-background.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    zIndex: -1,
+  }}
+/>
+
+{/* Dark overlay for readability */}
+<div
+  style={{
+    position: 'fixed',
+    top: 'var(--ifm-navbar-height)',
+    left: 'var(--doc-sidebar-width, 300px)',
+    right: 0,
+    bottom: 0,
+    background:
+      'radial-gradient(1200px 800px at 50% 40%, rgba(2,12,24,0.25) 0%, rgba(2,12,24,0.6) 55%, rgba(2,12,24,0.85) 100%)',
+    zIndex: -1,
+  }}
+/>
+
+{/* Main centered content */}
+<div
+  style={{
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 'calc(100vh - var(--ifm-navbar-height))',
+    padding: '3rem 1rem',
+    textAlign: 'center',
+  }}
+>
+  <h1 style={{ color: 'gold', fontWeight: 800, fontSize: '2.8rem' }}>
+    Welcome to QuantDevDocs 🧠
+  </h1>
+
+  <div
+    style={{
+      color: '#e8eef6',
+      maxWidth: '600px',
+      marginTop: '1.5rem',
+      textAlign: 'left',
+    }}
+  >
+
+  ## Get Started
+
+  - [Git Basics](git/git.md)
+  - [Project KickStarters Guide](project-kickstarters/python-basic.md)
+  - [Finance](finance/Actions-indices.mdx)
+
+  </div>
+</div>

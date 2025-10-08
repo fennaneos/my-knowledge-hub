@@ -660,3 +660,207 @@ while single-stock skew is often used for **relative-value trading**.
 ---
 
 ![Skew Smile](./skew-smile.png)
+
+import TryIt from '@site/src/components/tryit/TryIt';
+
+## 9. Practical Lab — Skew Smile (10 mini exercises)
+
+<TryIt
+  id="skew-smile-lab"
+  chapterId="skew-smile"
+  title="Skew & Smile — Mini Lab"
+  intro="Complete each small function, then run the tests. Descriptions under each tile tell you exactly what to implement."
+  starTotal={3}
+  packWeight={0.3}
+  packs={[
+    {
+      id: 'atm',
+      name: '⭐ ATM volatility passthrough',
+      question: 'Write atm_vol(sigma_atm) that just returns the ATM vol.',
+      detect: "def\\s+atm_vol\\s*\\(",
+      scaffold: `def atm_vol(sigma_atm):
+    """Return the at-the-money volatility unchanged."""
+    # TODO: return sigma_atm
+    return 0
+`,
+      hint: `One-liner: return sigma_atm`,
+      weight: 0.3,
+      tests: [
+        { expr: 'atm_vol(0.20)', expected: 0.20, tol: 1e-12 },
+        { expr: 'atm_vol(0.18)', expected: 0.18, tol: 1e-12 },
+      ],
+    },
+
+    {
+      id: 'abs-moneyness-linear',
+      name: '⭐ Linear smile vs |log-moneyness|',
+      question: 'Implement smile_linear(sig_atm, a, m) = sig_atm + a*|m| where m = log(K/S0).',
+      detect: "def\\s+smile_linear\\s*\\(",
+      scaffold: `def smile_linear(sigma_atm, a, m):
+    """Return sigma_atm + a*abs(m).  (m is log-moneyness)"""
+    # TODO
+    return 0.0
+`,
+      hint: `Use abs(m). Example: return sigma_atm + a*abs(m)`,
+      weight: 0.3,
+      tests: [
+        // m = ln(0.8) in abs = 0.2231435513 → 0.2 + 0.05*0.2231435513
+        { expr: 'smile_linear(0.20, 0.05, -0.2231435513)', expected: 0.211157177565, tol: 1e-9 },
+        // m = ln(1.2) = 0.1823215568 → 0.2 + 0.05*0.1823215568
+        { expr: 'smile_linear(0.20, 0.05, 0.1823215568)', expected: 0.20911607784, tol: 1e-9 },
+      ],
+    },
+
+    {
+      id: 'abs-moneyness-power',
+      name: '⭐ Power smile vs |log-moneyness|^γ',
+      question: 'Implement smile_power(sig_atm, a, gamma, m) = sig_atm + a*|m|**gamma.',
+      detect: "def\\s+smile_power\\s*\\(",
+      scaffold: `def smile_power(sigma_atm, a, gamma, m):
+    """Return sigma_atm + a*abs(m)**gamma."""
+    # TODO
+    return 0.0
+`,
+      hint: `Use abs(m) ** gamma`,
+      weight: 0.3,
+      tests: [
+        // m = ln(0.8) in abs = 0.2231435513
+        { expr: 'smile_power(0.22, 0.10, 1.4, -0.2231435513)', expected: 0.2322466719543868, tol: 1e-9 },
+        // m = ln(1.2) = 0.1823215568
+        { expr: 'smile_power(0.22, 0.10, 1.4, 0.1823215568)', expected: 0.2292293949017666, tol: 1e-9 },
+      ],
+    },
+
+    {
+      id: 'skew-slope',
+      name: '⭐ Skew as slope wrt log-moneyness',
+      question: 'Implement skew_slope(imp_low, imp_high, m_low, m_high) = Δσ / Δm.',
+      detect: "def\\s+skew_slope\\s*\\(",
+      scaffold: `def skew_slope(imp_low, imp_high, m_low, m_high):
+    """Return (imp_high - imp_low) / (m_high - m_low)."""
+    # TODO
+    return 0.0
+`,
+      hint: `Basic two-point slope formula.`,
+      weight: 0.3,
+      tests: [
+        // (0.205 - 0.24) / (0.18 - (-0.22)) = -0.0875
+        { expr: 'skew_slope(0.24, 0.205, -0.22, 0.18)', expected: -0.0875, tol: 1e-12 },
+        // (0.20 - 0.26) / (0.20 - (-0.30)) = -0.12
+        { expr: 'skew_slope(0.26, 0.20, -0.30, 0.20)', expected: -0.12, tol: 1e-12 },
+      ],
+    },
+
+    {
+      id: 'rr25',
+      name: '⭐ 25Δ Risk Reversal',
+      question: 'Implement rr25(call25, put25) = call25 − put25 (negative for equity skew).',
+      detect: "def\\s+rr25\\s*\\(",
+      scaffold: `def rr25(call25, put25):
+    """Return call25 - put25."""
+    # TODO
+    return 0.0
+`,
+      hint: `Just subtract.`,
+      weight: 0.3,
+      tests: [
+        { expr: 'rr25(0.19, 0.211)', expected: -0.021, tol: 1e-12 },
+        { expr: 'rr25(0.175, 0.19)', expected: -0.015, tol: 1e-12 },
+      ],
+    },
+
+    {
+      id: 'bf25',
+      name: '⭐ 25Δ Butterfly',
+      question: 'Implement bf25(call25, put25, atm) = 0.5*(call25 + put25) − atm.',
+      detect: "def\\s+bf25\\s*\\(",
+      scaffold: `def bf25(call25, put25, atm):
+    """Return 0.5*(call25 + put25) - atm."""
+    # TODO
+    return 0.0
+`,
+      hint: `Average wings, subtract ATM.`,
+      weight: 0.3,
+      tests: [
+        // 0.5*(0.24+0.28) - 0.22 = 0.04
+        { expr: 'bf25(0.24, 0.28, 0.22)', expected: 0.04, tol: 1e-12 },
+        // 0.5*(0.18+0.22) - 0.17 = 0.03
+        { expr: 'bf25(0.18, 0.22, 0.17)', expected: 0.03, tol: 1e-12 },
+      ],
+    },
+
+    {
+      id: 'linear-skew-model',
+      name: '⭐ Linear skew model',
+      question: 'Implement sigma_linear(sig_atm, b, m) = sig_atm + b*m (b < 0 for equity).',
+      detect: "def\\s+sigma_linear\\s*\\(",
+      scaffold: `def sigma_linear(sigma_atm, b, m):
+    """Return sigma_atm + b*m."""
+    # TODO
+    return 0.0
+`,
+      hint: `Plain linear function of m.`,
+      weight: 0.3,
+      tests: [
+        // sigma = 0.2 + (-0.1)*0.2 = 0.18
+        { expr: 'sigma_linear(0.20, -0.10, 0.20)', expected: 0.18, tol: 1e-12 },
+        // sigma = 0.2 + (-0.1)*(-0.2) = 0.22
+        { expr: 'sigma_linear(0.20, -0.10, -0.20)', expected: 0.22, tol: 1e-12 },
+      ],
+    },
+
+    {
+      id: 'index-var',
+      name: '⭐ Index variance with correlation',
+      question: 'Implement index_var(w1,w2,s1,s2,rho) = w1²s1² + w2²s2² + 2w1w2ρs1s2.',
+      detect: "def\\s+index_var\\s*\\(",
+      scaffold: `def index_var(w1, w2, s1, s2, rho):
+    """Return w1*w1*s1*s1 + w2*w2*s2*s2 + 2*w1*w2*rho*s1*s2."""
+    # TODO
+    return 0.0
+`,
+      hint: `Translate the formula literally.`,
+      weight: 0.3,
+      tests: [
+        { expr: 'index_var(0.6, 0.4, 0.30, 0.25, 0.8)', expected: 0.1448, tol: 1e-12 },
+        { expr: 'index_var(0.6, 0.4, 0.30, 0.25, 0.2)', expected: 0.0868, tol: 1e-12 },
+      ],
+    },
+
+    {
+      id: 'rich-vs-atm',
+      name: '⭐ Rich vs ATM check (vega intuition)',
+      question: 'Implement richer_than_atm(p_mkt, p_atm) that returns 1 if p_mkt>p_atm else 0.',
+      detect: "def\\s+richer_than_atm\\s*\\(",
+      scaffold: `def richer_than_atm(p_mkt, p_atm):
+    """Return 1 if p_mkt > p_atm else 0."""
+    # TODO
+    return 0
+`,
+      hint: `Return 1 or 0, not True/False.`,
+      weight: 0.3,
+      tests: [
+        { expr: 'richer_than_atm(6.00, 5.40)', expected: 1, tol: 0 },
+        { expr: 'richer_than_atm(4.00, 4.50)', expected: 0, tol: 0 },
+      ],
+    },
+
+    {
+      id: 'symmetry-check',
+      name: '⭐ Symmetry sanity (|m| invariant)',
+      question: 'Implement symmetry_ok(m) that returns 1 if |m| == |-m| else 0.',
+      detect: "def\\s+symmetry_ok\\s*\\(",
+      scaffold: `def symmetry_ok(m):
+    """Return 1 if abs(m) == abs(-m) else 0."""
+    # TODO
+    return 0
+`,
+      hint: `Use abs(m). Compare equality and return 1/0.`,
+      weight: 0.3,
+      tests: [
+        { expr: 'symmetry_ok(-0.2231435513)', expected: 1, tol: 0 },
+        { expr: 'symmetry_ok(0.2231435513)', expected: 1, tol: 0 },
+      ],
+    },
+  ]}
+/>
