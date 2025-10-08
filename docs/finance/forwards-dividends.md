@@ -4,6 +4,26 @@ title: Forward Pricing with Dividends — Simple AOA Proof
 sidebar_label: Forward (with Dividends)
 ---
 
+import ClearStarsButton from '@site/src/components/progress/ClearStarsButton';
+import ChapterStars from '@site/src/components/progress/ChapterStars';
+
+<div
+  className="gold-glow"
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: '1px solid rgba(212,175,55,0.25)',
+    borderRadius: 12,
+    padding: '8px 14px',
+    marginBottom: '12px',
+  }}
+>
+  <ChapterStars chapterId="forwards-dividends" showLabel />
+  <ClearStarsButton chapterId="forwards-dividends" />
+</div>
+
+
 # 📈 Forward Pricing with Dividends — Simple Arbitrage Proof
 
 

@@ -34,7 +34,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Finance',
-      items: ['finance/test', 'finance/Actions-indices', 'finance/fx', 'finance/skew-smile', 'finance/autocallables', 'finance/calls-and-puts', 
+      items: ['finance/monte-carlo', 'finance/Actions-indices', 'finance/fx', 'finance/skew-smile', 'finance/autocallables', 'finance/calls-and-puts', 
         'finance/forwards-dividends', 'finance/convexity-adjustment', 'finance/discountcurve', 'finance/volatility-handbook'],
     },
   ],

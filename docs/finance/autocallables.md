@@ -4,6 +4,26 @@ title: Autocallables Explained
 sidebar_label: Autocallables
 ---
 
+import ClearStarsButton from '@site/src/components/progress/ClearStarsButton';
+import ChapterStars from '@site/src/components/progress/ChapterStars';
+
+<div
+  className="gold-glow"
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: '1px solid rgba(212,175,55,0.25)',
+    borderRadius: 12,
+    padding: '8px 14px',
+    marginBottom: '12px',
+  }}
+>
+  <ChapterStars chapterId="autocallables" showLabel />
+  <ClearStarsButton chapterId="autocallables" />
+</div>
+
+
 # 🏦 Autocallable Products
 
 Autocallables (or "Autocalls") are **structured products** widely used in equity-linked investments.  

@@ -4,6 +4,27 @@ title: Forwards vs Futures & Convexity Adjustment
 sidebar_label: Convexity Adjustment
 ---
 
+import ClearStarsButton from '@site/src/components/progress/ClearStarsButton';
+import ChapterStars from '@site/src/components/progress/ChapterStars';
+
+<div
+  className="gold-glow"
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: '1px solid rgba(212,175,55,0.25)',
+    borderRadius: 12,
+    padding: '8px 14px',
+    marginBottom: '12px',
+  }}
+>
+  <ChapterStars chapterId="convexity-adjustment" showLabel />
+  <ClearStarsButton chapterId="convexity-adjustment" />
+</div>
+
+
+
 # 🔀 Forwards vs Futures & Convexity Adjustment
 
 Forwards and futures look very similar: both are agreements to buy/sell an asset in the future at a fixed price.  

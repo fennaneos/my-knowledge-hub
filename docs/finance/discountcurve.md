@@ -1,3 +1,29 @@
+---
+id: discountcurve
+title: Discount Curve
+sidebar_label: Discount Curve
+---
+
+import ClearStarsButton from '@site/src/components/progress/ClearStarsButton';
+import ChapterStars from '@site/src/components/progress/ChapterStars';
+
+<div
+  className="gold-glow"
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    border: '1px solid rgba(212,175,55,0.25)',
+    borderRadius: 12,
+    padding: '8px 14px',
+    marginBottom: '12px',
+  }}
+>
+  <ChapterStars chapterId="discountcurve" showLabel />
+  <ClearStarsButton chapterId="discountcurve" />
+</div>
+
+
 # Building a Discount Curve for Pricing Structured Products
 
 ## 1. Introduction
