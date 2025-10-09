@@ -1,3 +1,10 @@
+---
+id: git
+title: Git
+hideStars: true
+---
+
+
 # Git Basics
 
 Git is a distributed version control system used to track changes in source code.

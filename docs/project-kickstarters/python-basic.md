@@ -2,6 +2,7 @@
 id: python-project-bootstrap
 title: Python Project Bootstrap
 sidebar_label: Python Basic Setup
+hideStars: true
 ---
 
 # 🐍 Python Project Bootstrap

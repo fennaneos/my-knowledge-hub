@@ -20,22 +20,48 @@ module.exports = {
       type: 'doc',
       id: 'intro', // <-- Must match your `intro.md` filename (without .md)
       label: 'Introduction',
+      customProps: { hideStars: true },
+    },
+// sidebars.js
+{
+  type: 'category',
+  label: 'Project Kickstarters',
+  items: [
+    {
+      type: 'doc',
+      id: 'project-kickstarters/python-project-bootstrap',
+      label: 'Python Project Bootstrap',
+      customProps: { hideStars: true },
     },
     {
-    type: 'category',
-    label: 'Project Kickstarters',
-    items: ['project-kickstarters/python-project-bootstrap'],
-  },
-    {
-      type: 'category',
+      type: 'doc',
+      id: 'project-kickstarters/git',
       label: 'Git',
-      items: ['git/git'],
+      customProps: { hideStars: true },
+    },
+  ],
+},
+
+  // sidebars.js
+module.exports = {
+      type: 'category',
+      label: 'Finance Courses',
+      items: ['finance/monte-carlo', 'finance/Actions-indices', 'finance/fx', 'finance/skew-smile', 'finance/autocallables', 'finance/calls-and-puts', 
+        'finance/forwards-dividends', 'finance/convexity-adjustment', 'finance/discountcurve'],
     },
     {
       type: 'category',
-      label: 'Finance',
-      items: ['finance/monte-carlo', 'finance/Actions-indices', 'finance/fx', 'finance/skew-smile', 'finance/autocallables', 'finance/calls-and-puts', 
-        'finance/forwards-dividends', 'finance/convexity-adjustment', 'finance/discountcurve', 'finance/volatility-handbook'],
+      label: 'Premium Courses',
+      collapsible: true,
+      collapsed: false,
+      items: [
+        {
+          type: 'doc',
+          id: 'finance/volatility-handbook', // <— keep the same doc
+          label: 'Volatility Handbook',
+          customProps: { premium: true, badge: 'Premium' }, // keeps your gold badge
+        },
+      ],
     },
   ],
 };

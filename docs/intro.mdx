@@ -2,9 +2,50 @@
 id: intro
 title: Introduction
 slug: /
+hideStars: true
 ---
 
-{/* Full-width hero background */}
+{/* 1) Global opt-out map (in case your sidebar component reads it) */}
+<script
+  dangerouslySetInnerHTML={{
+    __html:
+      'window.__LUX_HIDE_STARS = Object.assign({}, window.__LUX_HIDE_STARS, { intro: true });',
+  }}
+/>
+
+{/* 2) Hard DOM fallback: hide stars/gauge next to the INTRO link in the sidebar */}
+<script
+  dangerouslySetInnerHTML={{
+    __html: `(function () {
+      function hideIntroStars() {
+        try {
+          // Match common hrefs that point to the intro doc
+          var selectors = [
+            'a.menu__link[href="/"]',
+            'a.menu__link[href="/docs/"]',
+            'a.menu__link[href="/docs"]',
+            'a.menu__link[href*="/docs/intro"]'
+          ];
+          var links = document.querySelectorAll(selectors.join(','));
+          links.forEach(function (a) {
+            // Our sidebar star wrapper is the immediate container <div> wrapping the link
+            var wrapper = a.closest('div');
+            if (!wrapper) return;
+            var stars = wrapper.querySelector('.lux-stars');
+            if (stars) stars.style.display = 'none';
+            var gauge = wrapper.querySelector('.lux-gauge');
+            if (gauge) gauge.style.display = 'none';
+          });
+        } catch (e) { /* noop */ }
+      }
+      if (document.readyState !== 'loading') hideIntroStars();
+      else document.addEventListener('DOMContentLoaded', hideIntroStars);
+      // Also run after client-side nav
+      document.addEventListener('docusaurus.routeDidUpdate', hideIntroStars);
+    })();`,
+  }}
+/>
+
 <div
   style={{
     position: 'fixed',
@@ -20,7 +61,6 @@ slug: /
   }}
 />
 
-{/* Dark overlay for readability */}
 <div
   style={{
     position: 'fixed',
@@ -34,7 +74,6 @@ slug: /
   }}
 />
 
-{/* Main centered content */}
 <div
   style={{
     position: 'relative',
@@ -47,24 +86,28 @@ slug: /
     textAlign: 'center',
   }}
 >
-  <h1 style={{ color: 'gold', fontWeight: 800, fontSize: '2.8rem' }}>
+  <h1 style={{ color: 'gold', fontWeight: 800, fontSize: '2.8rem', marginBottom: '1rem' }}>
     Welcome to QuantDevDocs 🧠
   </h1>
 
   <div
     style={{
       color: '#e8eef6',
-      maxWidth: '600px',
-      marginTop: '1.5rem',
+      maxWidth: 640,
+      marginTop: '0.5rem',
       textAlign: 'left',
+      background: 'rgba(2,12,24,0.45)',
+      border: '1px solid rgba(212,175,55,0.25)',
+      borderRadius: 12,
+      padding: '1rem 1.25rem',
+      boxShadow: '0 0 20px rgba(212,175,55,0.15)',
     }}
   >
-
-  ## Get Started
-
-  - [Git Basics](git/git.md)
-  - [Project KickStarters Guide](project-kickstarters/python-basic.md)
-  - [Finance](finance/Actions-indices.mdx)
-
+    <h2 style={{ marginTop: 0 }}>Get Started</h2>
+    <ul>
+      <li><a href="/docs/git/git">Git Basics</a></li>
+      <li><a href="/docs/project-kickstarters/python-basic">Project KickStarters Guide</a></li>
+      <li><a href="/docs/finance/Actions-indices">Finance — Actions &amp; Indices</a></li>
+    </ul>
   </div>
 </div>

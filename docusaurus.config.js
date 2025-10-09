@@ -51,6 +51,9 @@ const config = {
       logo: { alt: 'Dev Logo', src: 'img/beard_logo.png' },
       items: [
         { type: 'doc', docId: 'intro', position: 'left', label: 'Documentation' },
+        { to: '/trading', label: 'Trading View', position: 'left' },         // NEW
+        { to: '/finance/Actions-indices', label: 'Finance Courses', position: 'left' }, // pick your landing
+        { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },      // if you generated /premium index
         { href: 'https://github.com/fennaneos', label: 'GitHub', position: 'right' },
       ],
     },
