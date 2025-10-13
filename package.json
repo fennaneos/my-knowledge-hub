@@ -16,8 +16,8 @@
   "dependencies": {
     "@codemirror/lang-cpp": "^6.0.3",
     "@codemirror/lang-python": "^6.2.1",
-    "@docusaurus/core": "3.8.1",
-    "@docusaurus/preset-classic": "3.8.1",
+    "@docusaurus/core": "^3.9.1",
+    "@docusaurus/preset-classic": "^3.9.1",
     "@mdx-js/react": "^3.0.0",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
@@ -35,8 +35,8 @@
     "three": "^0.180.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.8.1",
-    "@docusaurus/types": "3.8.1"
+    "@docusaurus/module-type-aliases": "^3.9.1",
+    "@docusaurus/types": "^3.9.1"
   },
   "browserslist": {
     "production": [

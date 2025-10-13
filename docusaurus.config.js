@@ -1,5 +1,5 @@
-// @ts-check
 // docusaurus.config.js
+// @ts-check
 
 import math from 'remark-math';
 import katex from 'rehype-katex';
@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const config = {
   title: 'DevDocs',
   tagline: 'Developer Knowledge Hub',
-  url: 'https://your-site.com',
+  url: 'http://localhost:3000', // or your site URL
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -24,7 +24,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: '/',
+          routeBasePath: '/', // put docs at site root
           sidebarPath: require.resolve('./sidebars.js'),
           remarkPlugins: [math],
           rehypePlugins: [katex],
@@ -45,15 +45,14 @@ const config = {
     },
   ],
 
-  themeConfig: {
+  themeConfig: /** @type {import('@docusaurus/preset-classic').ThemeConfig} */ ({
     navbar: {
       title: '',
       logo: { alt: 'Dev Logo', src: 'img/beard_logo.png' },
       items: [
         { type: 'doc', docId: 'intro', position: 'left', label: 'Documentation' },
-        { to: '/trading', label: 'Trading View', position: 'left' },         // NEW
-        { to: '/finance/Actions-indices', label: 'Finance Courses', position: 'left' }, // pick your landing
-        { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },      // if you generated /premium index
+        { to: '/finance/Actions-indices', label: 'Finance Courses', position: 'left' },
+        { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },
         { href: 'https://github.com/fennaneos', label: 'GitHub', position: 'right' },
       ],
     },
@@ -62,9 +61,9 @@ const config = {
       copyright: `Copyright © ${new Date().getFullYear()} DevDocs.`,
     },
     colorMode: { defaultMode: 'dark', disableSwitch: true, respectPrefersColorScheme: false },
-  },
+  }),
 
-  // ✅ Local plugin to inject webpack aliases (v3-compatible)
+  // Optional: example alias plugin (safe)
   plugins: [
     function codemirrorAliasPlugin() {
       return {

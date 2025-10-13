@@ -5,8 +5,6 @@ export default function MarketTape() {
 
   useEffect(() => {
     if (!ref.current) return;
-
-    // Avoid injecting twice
     if (ref.current.querySelector('script[data-tv]')) return;
 
     const script = document.createElement('script');
@@ -31,14 +29,39 @@ export default function MarketTape() {
       displayMode: 'adaptive',
       locale: 'en',
     });
+
     const container = document.createElement('div');
     container.className = 'tradingview-widget-container';
     const inner = document.createElement('div');
     inner.className = 'tradingview-widget-container__widget';
     container.appendChild(inner);
     container.appendChild(script);
+
+    // Constrain + disable all pointer events so it can't block clicks
+    Object.assign(container.style, {
+      position: 'relative',
+      zIndex: '0',
+      overflow: 'hidden',
+      maxHeight: '44px',
+      pointerEvents: 'none',
+    });
+
     ref.current.appendChild(container);
+
+    // In case the iframe applies its own z-index/pointer-events later, nuke them
+    const killPointerEvents = () => {
+      const ifr = container.querySelector('iframe') as HTMLIFrameElement | null;
+      if (ifr) {
+        ifr.style.pointerEvents = 'none';
+        ifr.style.maxHeight = '44px';
+      }
+    };
+    const mo = new MutationObserver(killPointerEvents);
+    mo.observe(container, {childList: true, subtree: true});
+    killPointerEvents();
+
+    return () => mo.disconnect();
   }, []);
 
-  return <div ref={ref} />;
+  return <div ref={ref} style={{position: 'relative', zIndex: 0, overflow: 'hidden', maxHeight: 44}} />;
 }

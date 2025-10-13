@@ -1,0 +1,42 @@
+---
+id: trading-view
+title: Trading View
+sidebar_label: Trading View
+slug: /trading-view
+hide_table_of_contents: true
+---
+
+import MarketTape from '@site/src/components/market/MarketTape';
+
+<div
+  style={{
+    position:'relative',
+    minHeight:'calc(100vh - var(--ifm-navbar-height))',
+    display:'grid',
+    gridTemplateRows:'auto 1fr',
+    gap:'16px',
+    padding:'16px'
+  }}
+>
+  {/* Lux “markets” header */}
+  <div style={{
+    border:'1px solid rgba(212,175,55,.25)',
+    borderRadius:12,
+    padding:'10px 14px',
+    background:'linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0))',
+    color:'#f2d98b',
+    fontWeight:700
+  }}>
+    Live Markets (demo)
+  </div>
+
+  {/* Market tape (fake quotes for now) */}
+  <div style={{
+    border:'1px solid rgba(212,175,55,.18)',
+    borderRadius:12,
+    padding:'8px 10px',
+    background:'#0f1217'
+  }}>
+    <MarketTape symbols={['NVDA','AAPL','MSFT','AMZN','META','GOOGL']} refreshMs={5000} />
+  </div>
+</div>

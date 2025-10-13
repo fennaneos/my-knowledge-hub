@@ -1,6 +1,9 @@
+/* existing */
 .sidebarStack {
   display: grid;
   gap: 10px;
+  /* add */
+  position: relative;
 }
 
 .box {
@@ -8,7 +11,57 @@
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
   overflow: hidden;
+  /* add */
+  position: relative; /* create stacking context per card */
 }
+
+
+/* Make sure our docs card is on top and clickable */
+.sidebarStack { position: relative; }
+.sidebarStack .box { position: relative; }
+.sidebarStack .box + .box { z-index: 20; pointer-events: auto; }
+.sidebarStack .box + .box .boxBody { position: relative; z-index: 21; }
+/* last resort */
+.sidebarStack .box + .box { z-index: 9999 !important; }
+.sidebarStack .box + .box .boxBody { z-index: 10000 !important; }
+
+/* --- Clickability hammer --- */
+[data-lux-doc-sidebar="1"],
+[data-lux-doc-sidebar="1"] * {
+  pointer-events: auto !important;
+}
+
+/* Make the Documentation card live at the top of the stack */
+.theme-doc-sidebar-container [data-lux-doc-sidebar="1"] .box:nth-child(2),
+.theme-doc-sidebar-container [data-lux-doc-sidebar="1"] .box:nth-child(2) .boxBody {
+  position: relative;
+  z-index: 999999 !important;
+}
+
+/* Anything TradingView: purely decorative */
+.tradingview-widget-container,
+.tradingview-widget-container__widget,
+.tradingview-widget-container iframe {
+  pointer-events: none !important;
+  max-height: 44px !important;
+  overflow: hidden !important;
+}
+
+/* If any page-wide overlays exist, let clicks pass through them */
+#nprogress,
+#nprogress * {
+  pointer-events: none !important;
+}
+
+/* ensures the ticker can’t overflow into the docs card */
+.theme-doc-sidebar-container [data-lux-doc-sidebar="1"] .box:first-child .boxBody {
+  overflow: hidden !important;
+  position: relative;
+  z-index: 1;
+}
+
+
+
 
 .boxHeader {
   padding: 8px 10px;

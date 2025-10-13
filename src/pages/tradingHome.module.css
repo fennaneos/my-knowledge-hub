@@ -1,0 +1,104 @@
+.heroRoot {
+  position: relative;
+  min-height: calc(60vh - var(--ifm-navbar-height));
+  width: 100%;
+  background-image: url('/img/blue-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: grid;
+  place-items: center;
+}
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(1200px 800px at 50% 30%,
+    rgba(2, 12, 24, 0.35) 0%,
+    rgba(2, 12, 24, 0.68) 55%,
+    rgba(2, 12, 24, 0.86) 100%);
+}
+.heroContent {
+  position: relative;
+  text-align: center;
+  padding: 2rem 1rem;
+  max-width: 880px;
+}
+.heroTitle {
+  margin: 0 0 .5rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  background: linear-gradient(90deg, #d4af37, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.heroTag {
+  color: #e8edf5;
+  opacity: .95;
+  margin: .25rem 0 1.25rem;
+}
+.heroCtas { display: inline-flex; gap: .7rem; }
+
+.mainWrap {
+  max-width: 1200px;
+  margin: 18px auto 40px;
+  padding: 0 16px;
+}
+
+.box {
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+  box-shadow: 0 0 14px rgba(212,175,55,0.08);
+  margin-bottom: 16px;
+}
+.boxHeader {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(212,175,55,0.18);
+  color: #d4af37;
+  font-weight: 700;
+}
+.boxBody { padding: 12px 14px; }
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 1100px) {
+  .grid2 { grid-template-columns: 1fr; }
+}
+
+.chartCard {
+  width: 100%;
+  height: 520px;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+.watchlist { list-style: none; padding: 0; margin: 0; }
+.watchRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-bottom: 1px dashed rgba(212,175,55,0.15);
+}
+.watchRow:last-child { border-bottom: 0; }
+.sym { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; color: #e6edf3; }
+.nm { color: #9fb3c8; }
+.badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid rgba(212,175,55,0.35);
+  border-radius: 999px;
+  color: #ffd873;
+  text-decoration: none;
+}
+.badge:hover { background: rgba(212,175,55,0.08); }
+
+.disclaimer {
+  color: #7f95ab;
+  font-size: 12px;
+  margin-top: 8px;
+}

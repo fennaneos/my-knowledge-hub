@@ -1,111 +1,123 @@
-import React, {useEffect, useState} from 'react';
-import OriginalLink from '@theme-original/DocSidebarItem/Link';
-import type {Props} from '@theme/DocSidebarItem/Link';
-import {useDocById} from '@docusaurus/plugin-content-docs/client';
-import {useProgress} from '@site/src/components/progress/ProgressContext';
-import ChapterStars from '@site/src/components/progress/ChapterStars';
+import React, {useEffect, useRef, useState} from 'react';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import {useWindowSize} from '@docusaurus/theme-common';
+import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-/** Normalize a key to match what <TryIt chapterId="..."> emits. */
-function chapterKeyFromItem(item: Props['item']): {key: string | null; docId?: string} {
-  // @ts-ignore – docusaurus versions differ
-  const docId: string | undefined = item.docId ?? item.docIdString ?? undefined;
-  const takeLast = (s: string) => (s.split('/').filter(Boolean).pop() || '').toLowerCase();
+import MarketTape from '@site/src/components/market/MarketTape';
+import styles from './luxSidebar.module.css';
 
-  if (docId) return {key: takeLast(docId), docId};
+// CommonJS sidebars.js
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const sidebars = require('@site/sidebars');
 
-  const href = (item as any)?.href as string | undefined;
-  if (!href) return {key: null};
-  if (href === '/' || href === '/docs' || href === '/docs/') return {key: 'intro'};
+// ---- Minimal recursive renderer for sidebars.js data ----
+type SidebarItem =
+  | string
+  | { type: 'doc' | 'category'; id?: string; label?: string; items?: SidebarItem[]; collapsed?: boolean };
 
-  const clean = href.split('#')[0].split('?')[0].replace(/\/+$/, '');
-  return {key: takeLast(clean)};
+function DocLink({id, label}: {id: string; label?: string}) {
+  const url = useBaseUrl(`/docs/${id}`);
+  return <Link to={url}>{label ?? id}</Link>;
 }
 
-/**
- * Per-link override:
- * - Renders the original link
- * - Optional Premium badge (front-matter "premium": true, optional "badge": "Text")
- * - Progress gauge + stars (unless hidden by hideStars)
- *   * hideStars priority: front-matter > customProps > window.__LUX_HIDE_STARS[chapterKey]
- */
-export default function Link(props: Props): JSX.Element {
-  const {key: chapterKey, docId} = chapterKeyFromItem(props.item);
+function RenderItems({items}: {items: SidebarItem[]}) {
+  return (
+    <ul style={{margin: 0, padding: '8px 12px', listStyle: 'none'}}>
+      {items.map((item, idx) => {
+        if (typeof item === 'string') {
+          return (
+            <li key={item} style={{margin: '6px 0'}}>
+              <DocLink id={item} />
+            </li>
+          );
+        }
+        if (item.type === 'doc' && item.id) {
+          return (
+            <li key={item.id} style={{margin: '6px 0'}}>
+              <DocLink id={item.id} label={item.label} />
+            </li>
+          );
+        }
+        if (item.type === 'category' && item.items) {
+          const key = `${item.label ?? 'Category'}-${idx}`;
+          return (
+            <li key={key} style={{margin: '8px 0'}}>
+              <details open={item.collapsed === false}>
+                <summary style={{cursor: 'pointer', fontWeight: 600}}>
+                  {item.label ?? 'Category'}
+                </summary>
+                <RenderItems items={item.items} />
+              </details>
+            </li>
+          );
+        }
+        return null;
+      })}
+    </ul>
+  );
+}
 
-  // Read front-matter of the target doc (to get flags like premium/hideStars)
-  const doc = docId ? useDocById(docId) : undefined;
-  const fm: any = doc?.frontMatter ?? {};
-  const custom = (props.item as any)?.customProps ?? {};
+export default function DocSidebar() {
+  const tutorial: SidebarItem[] = Array.isArray(sidebars?.tutorialSidebar) ? sidebars.tutorialSidebar : [];
+  const hasItems = tutorial.length > 0;
 
-  const premium = !!(fm.premium ?? custom.premium);
-  const badgeText: string = fm.badge ?? custom.badge ?? 'Premium';
+  // Only render the FIRST *visible* desktop mount
+  const win = useWindowSize(); // 'desktop' | 'mobile' | 'ssr'
+  const isDesktop = win === 'desktop' || win === 'ssr';
 
-  // Hide-stars flags: front-matter, customProps, or global window flag set by a page script
-  const fmHide = !!fm.hideStars;
-  const sidebarHide = !!custom.hideStars;
-  const globalHide =
-    typeof window !== 'undefined' && chapterKey
-      ? !!(window as any).__LUX_HIDE_STARS?.[chapterKey]
-      : false;
-  const hideStars = fmHide || sidebarHide || globalHide;
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [isPrimary, setIsPrimary] = useState(false);
 
-  // Progress (to render gauge/stars)
-  const {all} = useProgress();
-  const prog = chapterKey ? all[chapterKey] : undefined;
-
-  // tiny pulse when this chapter updates
-  const [pulse, setPulse] = useState(0);
   useEffect(() => {
-    if (!chapterKey) return;
-    const onEvt = (e: any) => {
-      if (e?.detail?.id?.toLowerCase?.() !== chapterKey) return;
-      setPulse((p) => p + 1);
-    };
-    document.addEventListener('lux:progress', onEvt);
-    return () => document.removeEventListener('lux:progress', onEvt);
-  }, [chapterKey]);
+    if (!isDesktop) return; // we only show the fancy chrome on desktop
+    if (typeof window === 'undefined') return;
+    const el = ref.current;
+    if (!el) return;
 
-  const ratio = Math.max(0, Math.min(1, prog?.ratio ?? 0));
-  const percent = Math.round(ratio * 100);
+    // only consider visible mounts
+    const isVisible = !!el.offsetParent;
+    if (!isVisible) {
+      setIsPrimary(false);
+      return;
+    }
+
+    // render only once per page load, in the first visible mount
+    if (!(window as any).__LUX_PRIMARY_SIDEBAR_RENDERED) {
+      (window as any).__LUX_PRIMARY_SIDEBAR_RENDERED = true;
+      setIsPrimary(true);
+    } else {
+      setIsPrimary(false);
+    }
+  }, [isDesktop]);
+
+  // Mobile & off-canvas: render nothing (prevents duplicates)
+  if (!isDesktop) {
+    return null;
+  }
+
+  // Desktop but not the primary visible mount: render nothing
+  if (!isPrimary) {
+    return <div ref={ref} data-lux-doc-sidebar="" style={{display: 'none'}} />;
+  }
+
+  if (!hasItems) return null;
 
   return (
-    <div
-      style={{position: 'relative'}}
-      data-hidestars={hideStars ? '1' : undefined}
-      data-premium={premium ? '1' : undefined}
-    >
-      <OriginalLink {...props} />
+    <div ref={ref} data-lux-doc-sidebar="" className={styles.sidebarStack}>
+      <div className={styles.box}>
+        <div className={styles.boxHeader}><span>Markets</span></div>
+        <div className={styles.boxBody}>
+          <BrowserOnly>{() => <MarketTape />}</BrowserOnly>
+        </div>
+      </div>
 
-      {/* Premium badge */}
-      {premium && (
-        <span className="lux-badge lux-badge--premium" aria-label="Premium">
-          {badgeText}
-        </span>
-      )}
-
-      {/* Gauge + stars (skip if hidden) */}
-      {!hideStars && (
-        <>
-          <div
-            className="lux-gauge"
-            data-pulse={pulse}
-            aria-label={chapterKey ? `Progress ${percent}%` : undefined}
-            style={{['--p' as any]: `${percent}%`}}
-          >
-            <div className="lux-gauge__track" />
-            <div className="lux-gauge__fill" />
-          </div>
-
-          {chapterKey && (
-            <div
-              className="lux-stars"
-              aria-hidden="true"
-              style={{display: 'flex', alignItems: 'center'}}
-            >
-              <ChapterStars chapterId={chapterKey} size={14} />
-            </div>
-          )}
-        </>
-      )}
+      <div className={styles.box}>
+        <div className={styles.boxHeader}><span>Documentation</span></div>
+        <div className={styles.boxBody} style={{padding: 0}}>
+          <RenderItems items={tutorial} />
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,8 +1,14 @@
 ---
 id: monte-carlo
+slug: /finance/monte-carlo
 title: Monte Carlo π Lab
 sidebar_label: Monte Carlo π
 ---
+
+
+
+
+
 
 import ChapterStars from '@site/src/components/progress/ChapterStars';
 import ClearStarsButton from '@site/src/components/progress/ClearStarsButton';
