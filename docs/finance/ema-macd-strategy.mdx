@@ -1,72 +1,60 @@
 ---
-title: EMA–MACD Bias Strategy
-sidebar_label: EMA–MACD Strategy
+title: EMA + MACD Strategy
+sidebar_label: EMA + MACD Strategy
+slug: /finance/ema-macd-strategy
 ---
 
-import ChapterStars from '@site/src/components/progress/ChapterStars';
-import ClearStarsButton from '@site/src/components/progress/ClearStarsButton';
+This note explains a simple trend-following strategy using **Exponential Moving Averages (EMAs)** and **MACD**.
 
-<div
-  className="gold-glow"
-  style={{
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    border: '1px solid rgba(212,175,55,0.25)',
-    borderRadius: 12,
-    padding: '8px 14px',
-    marginBottom: '18px',
-  }}
->
-  <ChapterStars chapterId="ema-macd" showLabel />
-  <ClearStarsButton chapterId="ema-macd" />
-</div>
+## Exponential Moving Average (EMA)
 
-# EMA–MACD Bias Strategy
+For a close series \(C_t\) and period \(n\), define the smoothing factor
+$$
+\alpha = \frac{2}{n+1}.
+$$
+The EMA is updated recursively as
+$$
+\mathrm{EMA}_t = \alpha\, C_t + (1-\alpha)\, \mathrm{EMA}_{t-1}.
+$$
 
-**Idea.** Use the medium-term trend (``EMA(12)`` vs ``EMA(26)``) for *bias* and time entries with the **MACD histogram** zero-cross; gate with **RSI(14)** to avoid extremes.
+Common pairs: fast = 12, slow = 26.
 
-## Rules
+## MACD
 
-**Bias**
+The MACD line is the difference between fast and slow EMAs:
+$$
+\mathrm{MACD}_t = \mathrm{EMA}^{\text{fast}}_t - \mathrm{EMA}^{\text{slow}}_t.
+$$
 
-- Bullish if \( \operatorname{EMA}_{12} > \operatorname{EMA}_{26} \)  
-- Bearish if \( \operatorname{EMA}_{12} < \operatorname{EMA}_{26} \)
+The **Signal** line is an EMA of the MACD, typically period 9:
+$$
+\mathrm{Signal}_t = \mathrm{EMA}_{9}(\mathrm{MACD}_t).
+$$
 
-**Trigger**
+A common histogram is
+$$
+\mathrm{Hist}_t = \mathrm{MACD}_t - \mathrm{Signal}_t.
+$$
 
-- Long when \( \operatorname{Hist} = \operatorname{MACD} - \operatorname{Signal} \) crosses **above 0** and bias is **bullish**.  
-- Short when it crosses **below 0** and bias is **bearish**.
+## Basic Rules
 
-**RSI filter**
-
-- Skip long if \( \operatorname{RSI}_{14} > 70 \)  
-- Skip short if \( \operatorname{RSI}_{14} < 30 \)
-
-**Exit**
-
-- Reverse on opposite signal (baseline). Extensions: stop/TP, time-based exit.
-
-## Formulas
-
-- \( \operatorname{EMA}_k = \alpha P_t + (1-\alpha)\operatorname{EMA}_{k-1}, \quad \alpha=\frac{2}{k+1} \)
-- \( \operatorname{MACD} = \operatorname{EMA}_{12} - \operatorname{EMA}_{26} \)
-- \( \operatorname{Signal} = \operatorname{EMA}_9(\operatorname{MACD}) \)
-- \( \operatorname{Hist} = \operatorname{MACD} - \operatorname{Signal} \)
+- **Bullish**: fast EMA crosses **above** slow EMA (or MACD crosses above Signal) → bias long.  
+- **Bearish**: fast EMA crosses **below** slow EMA (or MACD crosses below Signal) → bias short.  
+- Optional filter: require price above/below a higher-timeframe EMA.
 
 ## Pseudocode
 
-```python
-# identifiers inside a fenced code block are safe
-ema12 = EMA(close, 12)
-ema26 = EMA(close, 26)
-macd, signal, hist = MACD(close, 12, 26, 9)
-r = RSI(close, 14)
+```text
+inputs: fast=12, slow=26, signal=9
 
-for t in range(1, N):
-    biasUp = ema12[t] > ema26[t]
-    biasDn = ema12[t] < ema26[t]
-    crossUp = hist[t-1] <= 0 and hist[t] > 0
-    crossDn = hist[t-1] >= 0 and hist[t] < 0
-    longOK  = biasUp and crossUp and r[t] <= 70
-    shortOK = biasDn and crossDn and r[t] >= 30
+for each bar t:
+  emaFast[t] = EMA(close, fast)
+  emaSlow[t] = EMA(close, slow)
+  macd[t]    = emaFast[t] - emaSlow[t]
+  sig[t]     = EMA(macd, signal)
+
+  crossUp    = (emaFast[t-1] <= emaSlow[t-1]) and (emaFast[t] > emaSlow[t])
+  crossDown  = (emaFast[t-1] >= emaSlow[t-1]) and (emaFast[t] < emaSlow[t])
+
+  if crossUp:   go long (or reduce shorts)
+  if crossDown: go short (or reduce longs)
