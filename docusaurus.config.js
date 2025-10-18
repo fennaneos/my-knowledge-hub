@@ -24,13 +24,13 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: '/', // put docs at site root
+          routeBasePath: '/', // docs at site root
           sidebarPath: require.resolve('./sidebars.js'),
           remarkPlugins: [math],
           rehypePlugins: [katex],
         },
         blog: false,
-        pages: false,
+        pages: false, // keep pages off; we’ll use a redirect instead
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -45,26 +45,37 @@ const config = {
     },
   ],
 
-  themeConfig: /** @type {import('@docusaurus/preset-classic').ThemeConfig} */ ({
-    navbar: {
-      title: '',
-      logo: { alt: 'Dev Logo', src: 'img/beard_logo.png' },
-      items: [
-        { type: 'doc', docId: 'intro', position: 'left', label: 'Documentation' },
-        { to: '/finance/Actions-indices', label: 'Finance Courses', position: 'left' },
-        { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },
-        { href: 'https://github.com/fennaneos', label: 'GitHub', position: 'right' },
-      ],
-    },
-    footer: {
-      style: 'dark',
-      copyright: `Copyright © ${new Date().getFullYear()} DevDocs.`,
-    },
-    colorMode: { defaultMode: 'dark', disableSwitch: true, respectPrefersColorScheme: false },
-  }),
+  themeConfig:
+    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+    ({
+      navbar: {
+        title: '',
+        logo: { alt: 'Dev Logo', src: 'img/beard_logo.png' },
+        items: [
+          // Keep this—clicking “Documentation” goes to "/" which redirects to /intro
+          { type: 'doc', docId: 'intro', position: 'left', label: 'Documentation' },
+          { to: '/finance/Actions-indices', label: 'Finance Courses', position: 'left' },
+          { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },
+          { href: 'https://github.com/fennaneos', label: 'GitHub', position: 'right' },
+        ],
+      },
+      footer: {
+        style: 'dark',
+        copyright: `Copyright © ${new Date().getFullYear()} DevDocs.`,
+      },
+      colorMode: { defaultMode: 'dark', disableSwitch: true, respectPrefersColorScheme: false },
+    }),
 
-  // Optional: example alias plugin (safe)
   plugins: [
+    // ✅ Redirect "/" → "/intro" while keeping "/intro" working
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [{ from: '/', to: '/intro' }],
+      },
+    ],
+
+    // Your webpack alias plugin (unchanged)
     function codemirrorAliasPlugin() {
       return {
         name: 'codemirror-alias-plugin',
