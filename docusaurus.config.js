@@ -67,13 +67,7 @@ const config = {
     }),
 
   plugins: [
-    // ✅ Redirect "/" → "/intro" while keeping "/intro" working
-    [
-      '@docusaurus/plugin-client-redirects',
-      {
-        redirects: [{ from: '/', to: '/intro' }],
-      },
-    ],
+
 
     // Your webpack alias plugin (unchanged)
     function codemirrorAliasPlugin() {
