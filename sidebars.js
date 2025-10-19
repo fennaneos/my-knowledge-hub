@@ -22,6 +22,7 @@ module.exports = {
         'finance/convexity-adjustment',
         'finance/discountcurve',
         'finance/ema-macd-strategy', // new doc
+        'finance/virtual-monitoring',
       ],
     },
     {
