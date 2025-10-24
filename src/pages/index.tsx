@@ -69,14 +69,20 @@ export default function TradingHome(): JSX.Element {
           <p className={styles.heroTag}>
             Realtime tickers, a premium dark chart, and a quick equity watchlist.
           </p>
-          <div className={styles.heroCtas}>
-            <a className="button button--primary" href="/docs/finance/volatility-handbook">
-              Volatility Handbook
-            </a>
-            <a className="button button--secondary" href="/docs/premium/volatility-handbook">
-              Premium Courses
-            </a>
-          </div>
+<div className="cta-group">
+  <a className="btn-neo-blue" href="/">Home</a>
+  <a className="btn-ghost-blue" href="/finance/Actions-indices">Finance Courses</a>
+  <a className="btn-ghost-blue" href="/premium/volatility-handbook">Premium Courses</a>
+  <a className="btn-ghost-blue" href="/lab">
+    Open Lab <span className="badge-new">NEW</span>
+  </a>
+</div>
+
+{/* newline section */}
+<div className="cta-group cta-pro-line">
+  <a className="btn-neo-red-modern" href="/pricing-labs">Get Pro</a>
+</div>
+
         </div>
       </div>
 

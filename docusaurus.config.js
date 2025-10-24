@@ -4,19 +4,28 @@
 import math from 'remark-math';
 import katex from 'rehype-katex';
 import { createRequire } from 'module';
+
 const require = createRequire(import.meta.url);
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'DevDocs',
   tagline: 'Developer Knowledge Hub',
-  url: 'http://localhost:3000', // or your site URL
+  url: 'http://localhost:3000',
   baseUrl: '/',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  // ⬇️ moved per deprecation (see markdown.hooks below)
+  // onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'your-org',
   projectName: 'your-repo-name',
+
+  // New location for the old onBrokenMarkdownLinks
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
 
   presets: [
     [
@@ -30,7 +39,8 @@ const config = {
           rehypePlugins: [katex],
         },
         blog: false,
-        pages: false, // keep pages off; we’ll use a redirect instead
+        // ✅ enable the pages plugin with default settings (boolean may fail validation in your version)
+        pages: {},
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -52,10 +62,16 @@ const config = {
         title: '',
         logo: { alt: 'Dev Logo', src: 'img/beard_logo.png' },
         items: [
-          // Keep this—clicking “Documentation” goes to "/" which redirects to /intro
-          { type: 'doc', docId: 'intro', position: 'left', label: 'Documentation' },
+          { type: 'doc', docId: 'intro', position: 'left', label: 'Home' },
+      { to: '/virtual-trading', label: 'Virtual Trading', position: 'right' },
           { to: '/finance/Actions-indices', label: 'Finance Courses', position: 'left' },
+          { to: '/backtest', label: 'Backtest', position: 'right' },
           { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },
+
+          // links to new pages
+          { to: '/lab', label: 'Lab', position: 'right' },
+          { to: '/pricing-labs', label: 'Get Pro', position: 'right' },
+
           { href: 'https://github.com/fennaneos', label: 'GitHub', position: 'right' },
         ],
       },
@@ -67,9 +83,6 @@ const config = {
     }),
 
   plugins: [
-
-
-    // Your webpack alias plugin (unchanged)
     function codemirrorAliasPlugin() {
       return {
         name: 'codemirror-alias-plugin',
