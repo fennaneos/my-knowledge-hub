@@ -749,6 +749,8 @@ export default function BacktestStudioTV() {
             <div style={{ display: "flex", gap: 10, alignItems: "center", minWidth: 0 }}>
               <span>Backtest Studio</span>
               <span className="lux-chip">{p.symbol}</span>
+              <a className="btn-ghost-blue" href="/products">Open Product Workbench</a>
+
               <HelpTip title="What do the lines mean?">
                 <div style={{ maxWidth: 300 }}>
                   <b>Vertical colored lines</b> mark <b>Buy</b> (green) and <b>Sell</b> (red) event timestamps across

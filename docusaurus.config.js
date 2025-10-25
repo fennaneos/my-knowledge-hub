@@ -26,6 +26,7 @@ const config = {
       onBrokenMarkdownLinks: 'warn',
     },
   },
+    scripts: ['/market-fetch.js'], // served from /static
 
   presets: [
     [
@@ -63,10 +64,13 @@ const config = {
         logo: { alt: 'Dev Logo', src: 'img/beard_logo.png' },
         items: [
           { type: 'doc', docId: 'intro', position: 'left', label: 'Home' },
-      { to: '/virtual-trading', label: 'Virtual Trading', position: 'right' },
+          { to: '/virtual-trading', label: 'Virtual Trading', position: 'right' },
           { to: '/finance/Actions-indices', label: 'Finance Courses', position: 'left' },
           { to: '/backtest', label: 'Backtest', position: 'right' },
           { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },
+{ to: '/products', label: 'Products', position: 'left' },
+{ to: '/pricer/EquityVanilla', label: 'Pricer', position: 'left' },
+
 
           // links to new pages
           { to: '/lab', label: 'Lab', position: 'right' },
