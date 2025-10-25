@@ -1,11 +1,21 @@
 import React, {useMemo, useState} from "react";
 import Layout from "@theme/Layout";
 import HelpTip from "../../components/HelpTip";
-import "katex/dist/katex.min.css";
-import { InlineMath } from "react-katex";
 
-function normCdf(x:number){ return 0.5 * (1 + Math.erf(x/Math.SQRT2)); }
-function normPdf(x:number){ return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI); }
+
+function normCdf(x: number) {
+  // Abramowitz & Stegun approximation, good to ~1e-7
+  const t = 1 / (1 + 0.2316419 * Math.abs(x));
+  const d = 0.3989423 * Math.exp(-x * x / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return x > 0 ? 1 - p : p;
+}
+
+function normPdf(x: number) {
+  return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+}
+
+
 
 function bsPriceGreeks(S:number, K:number, r:number, q:number, vol:number, T:number){
   if (T<=0 || vol<=0 || S<=0 || K<=0) return {call:0, put:0, deltaC:0, deltaP:0, gamma:0, vega:0, thetaC:0, thetaP:0, rhoC:0, rhoP:0, d1:NaN, d2:NaN};

@@ -1,0 +1,6 @@
+[build]
+  functions = "netlify/functions"
+
+[dev]
+  command = "npm run start -- --port 3001"
+  port = 8888

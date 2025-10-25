@@ -23,16 +23,10 @@ export type ProductMeta = {
 };
 
 export const PRODUCTS: ProductMeta[] = [
-  {
-    id: "vanilla",
-    title: "Vanilla Option (BS)",
-    teaser: "Calls/Puts, Greeks, IV.",
-    category: "Equity",
-    defaultSymbol: "AAPL",
-    pricerHref: "/pricer/Vanilla",
-    docsHref: "/finance/black-scholes",
-    badge: "NEW",
-  },
+// in src/lib/products.ts (where you define cards)
+{ id:'vanilla', title:'Vanilla Option (BS)', category:'Equity', defaultSymbol:'AAPL',
+  teaser:'Calls/Puts, Greeks, IV.', pricerHref:'/pricer/Vanilla', docsHref:'/finance/vanilla', simulateHref:'/lab' }
+,
   {
     id: "autocall",
     title: "Autocallable / Phoenix",

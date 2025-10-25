@@ -69,7 +69,6 @@ const config = {
           { to: '/backtest', label: 'Backtest', position: 'right' },
           { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },
 { to: '/products', label: 'Products', position: 'left' },
-{ to: '/pricer/EquityVanilla', label: 'Pricer', position: 'left' },
 
 
           // links to new pages
