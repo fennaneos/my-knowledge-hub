@@ -1,6 +1,10 @@
 [build]
+  publish = "build"
   functions = "netlify/functions"
 
-[dev]
-  command = "npm run start -- --port 3001"
-  port = 8888
+# (Optional) always set proper cache headers on static JSON if you publish any
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Vary = "Origin"

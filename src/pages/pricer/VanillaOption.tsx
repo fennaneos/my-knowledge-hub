@@ -2,6 +2,8 @@ import React, {useMemo, useState} from "react";
 import Layout from "@theme/Layout";
 import HelpTip from "../../components/HelpTip";
 
+import "katex/dist/katex.min.css";
+import { InlineMath, BlockMath } from "react-katex";
 
 function normCdf(x: number) {
   // Abramowitz & Stegun approximation, good to ~1e-7

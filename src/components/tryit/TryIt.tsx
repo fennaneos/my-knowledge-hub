@@ -7,15 +7,14 @@ import PythonTerminalPane, {
 
 type UTest = { expr: string; expected?: number; tol?: number };
 
-// UI definition for a multi-exercise “pack”
 type UIPack = {
   id: string;
   name: string;
-  detect?: string;      // regex string to auto-run relevant pack(s)
-  question?: string;    // VISIBLE description/question shown above the terminal
-  scaffold?: string;    // starter code users can insert
-  hint?: string;        // hint text
-  weight?: number;      // per-pack star weight override
+  detect?: string;
+  question?: string;
+  scaffold?: string;
+  hint?: string;
+  weight?: number; // supports fractional (e.g. 1.5)
   tests: { expr: string; expected?: number; tol?: number }[];
 };
 
@@ -25,21 +24,43 @@ type TryItProps = {
   intro?: string;
   chapterId?: string;
 
-  // Back-compat (Actions–Indices legacy path):
+  // legacy one-pack
   scaffold?: string;
   testName?: string;
   tests?: UTest[];
 
-  // New multi-exercise API:
+  // multi-pack
   packs?: UIPack[];
-  packWeight?: number;     // default star weight when a pack has no explicit weight
+  packWeight?: number;
 
-  // Optional: keep for your old two-tile UX
   hideLegacyTiles?: boolean;
 
-  // Cosmetic only
-  starTotal?: number;
+  // cosmetic
+  starTotal?: number; // total stars for the chapter (defaults to sum(weights) or 3)
 };
+
+/* -----------------------------
+   Progress helpers (monotonic)
+------------------------------ */
+const STAR_KEY = (chapterId: string) => `stars:${chapterId}`;
+function writeStarsMonotonic(chapterId: string, earned: number, total: number) {
+  const key = STAR_KEY(chapterId);
+  try {
+    const prevRaw = localStorage.getItem(key);
+    const prev = prevRaw ? JSON.parse(prevRaw) : null;
+    const next = {
+      chapterId,
+      earned: Math.max(prev?.earned ?? 0, earned),
+      total: Math.max(prev?.total ?? 0, total),
+      updatedAt: Date.now(),
+    };
+    localStorage.setItem(key, JSON.stringify(next));
+    // Broadcast so ChapterStars updates immediately
+    try {
+      window.dispatchEvent(new CustomEvent('tryit:progress', { detail: next }));
+    } catch {}
+  } catch {}
+}
 
 export default function TryIt({
   id = 'tryit',
@@ -47,22 +68,19 @@ export default function TryIt({
   intro = 'Complete the functions below, then run the tests.',
   chapterId,
 
-  // legacy
   scaffold,
   testName,
   tests,
 
-  // new
   packs,
   packWeight = 1.5,
   hideLegacyTiles = false,
 
-  // cosmetic
   starTotal,
 }: TryItProps) {
   const termRef = useRef<PythonTerminalPaneHandle>(null);
 
-  /** ================= Legacy scaffold (used only if packs not provided) ================ */
+  /** ============ Legacy scaffold (used only if packs not provided) ============ */
   const legacyScaffold = useMemo(
     () =>
       scaffold ||
@@ -144,19 +162,51 @@ export default function TryIt({
     []
   );
 
-  /** ================= Progress dispatch ================= */
+  /** ================= Progress dispatch & accounting ================= */
   const pendingPackIdsRef = useRef<string[]>([]);
+  const packWeightsRef = useRef<Record<string, number>>({});
+  const passedPacksRef = useRef<Record<string, boolean>>({});
 
   const handlePackDone = (summary: { name: string; total: number; passed: number }) => {
     if (!chapterId) return;
     const packId = pendingPackIdsRef.current.shift() || 'pack';
     const ratio = summary.total > 0 ? (summary.passed || 0) / summary.total : 0;
+    const w = (summary as any).weight ?? packWeight;
 
+    // Original bus (if other widgets listen to it)
     document.dispatchEvent(
       new CustomEvent('lux:pack-progress', {
-        detail: { id: chapterId, packId, ratio, weight: (summary as any).weight ?? packWeight, from: 'tryit' },
+        detail: { id: chapterId, packId, ratio, weight: w, from: 'tryit' },
       })
     );
+
+    // Award stars only on FULL pass for this pack
+    if (ratio === 1) {
+      passedPacksRef.current[packId] = true;
+
+      // Ensure we know this pack's weight
+      if (!(packId in packWeightsRef.current)) packWeightsRef.current[packId] = w;
+
+      const ids = Object.keys(packWeightsRef.current);
+      const totalFromWeights = ids.reduce((acc, id) => acc + (packWeightsRef.current[id] || 0), 0);
+      const totalStars = typeof starTotal === 'number' ? starTotal : (totalFromWeights || 3);
+
+      const earned = ids.reduce(
+        (acc, id) => acc + (passedPacksRef.current[id] ? (packWeightsRef.current[id] || 0) : 0),
+        0
+      );
+
+      writeStarsMonotonic(chapterId, earned, totalStars);
+    } else {
+      // Still notify listeners to refresh if they depend on partials
+      try {
+        window.dispatchEvent(
+          new CustomEvent('tryit:progress', {
+            detail: { chapterId, earned: 0, total: typeof starTotal === 'number' ? starTotal : 3 },
+          })
+        );
+      } catch {}
+    }
   };
 
   /** ================= Multi-pack UI (tiles) ================= */
@@ -172,7 +222,7 @@ export default function TryIt({
 
   const onToggleHint = (id: string) => setOpenHintId(prev => (prev === id ? null : id));
 
-  /** ================= Visible Questions (from packs[].question) ================= */
+  /** ================= Visible Questions ================= */
   const questionItems = useMemo(() => {
     if (!packs || !packs.length) return [];
     return packs.map((p, idx) => ({
@@ -190,12 +240,10 @@ export default function TryIt({
 
     pendingPackIdsRef.current = [];
 
-    // New multi-exercise mode
     if (packs && packs.length) {
       const code = api.getCode();
       const toRun: { ui: UIPack; pack: TestPack }[] = [];
 
-      // 1) Choose packs whose detect matches current code
       for (const ui of packs) {
         let match = true;
         if (ui.detect) {
@@ -209,61 +257,60 @@ export default function TryIt({
         if (match) {
           toRun.push({
             ui,
-            pack: {
-              name: ui.name,
-              tests: ui.tests.map(t => ({ ...t })),
-            },
+            pack: { name: ui.name, tests: ui.tests.map(t => ({ ...t })) },
           });
         }
       }
 
-      // 2) If none matched, run the first pack to give immediate feedback
       const finalList =
         toRun.length > 0
           ? toRun
-          : [
-              {
-                ui: packs[0],
-                pack: { name: packs[0].name, tests: packs[0].tests.map(t => ({ ...t })) },
-              },
-            ];
+          : [{ ui: packs[0], pack: { name: packs[0].name, tests: packs[0].tests.map(t => ({ ...t })) } }];
 
-      // 3) Dispatch each pack; stash its weight so onTestsDone can forward it
       for (const item of finalList) {
         pendingPackIdsRef.current.push(item.ui.id);
         const w = item.ui.weight ?? packWeight;
+        packWeightsRef.current[item.ui.id] = w;
         (api as any).__tryit_currentWeight = w;
         api.runTests(item.pack as TestPack);
       }
       return;
     }
 
-    // Legacy (no packs): forward/index detection or custom tests
+    // Legacy
     const code = api.getCode();
     const hasForward = /def\s+compute_forward\s*\(/.test(code);
     const hasIndex = /def\s+compute_index_forward\s*\(/.test(code);
 
     if (tests && tests.length) {
       pendingPackIdsRef.current.push('custom');
+      packWeightsRef.current['custom'] = packWeight;
+      (api as any).__tryit_currentWeight = packWeight;
       api.runTests(legacyForwardPack);
       return;
     }
 
     if (hasForward) {
       pendingPackIdsRef.current.push('forward');
+      packWeightsRef.current['forward'] = packWeight;
+      (api as any).__tryit_currentWeight = packWeight;
       api.runTests(legacyForwardPack);
     }
     if (hasIndex) {
       pendingPackIdsRef.current.push('index');
+      packWeightsRef.current['index'] = packWeight;
+      (api as any).__tryit_currentWeight = packWeight;
       api.runTests(legacyIndexPack);
     }
     if (!hasForward && !hasIndex) {
       pendingPackIdsRef.current.push('forward');
+      packWeightsRef.current['forward'] = packWeight;
+      (api as any).__tryit_currentWeight = packWeight;
       api.runTests(legacyForwardPack);
     }
   };
 
-  /** ================= Hook our weight into onTestsDone summary ================= */
+  /** Hook our weight into onTestsDone summary */
   const onTestsDone = (summary: { name: string; total: number; passed: number }) => {
     const w = (termRef.current as any)?.__tryit_currentWeight;
     (summary as any).weight = w ?? packWeight;
@@ -273,42 +320,11 @@ export default function TryIt({
   /** ================= Render ================= */
   return (
     <div id={`tryit-${id}`} style={{ margin: '1rem 0' }}>
-      {/* Header */}
       <div className="gold-glow" style={{ padding: 12, border: '1px solid var(--gold-faint)', borderRadius: 12 }}>
         <h2 style={{ margin: 0 }}>{title}</h2>
         <p style={{ marginTop: 6, color: '#cfcfcf' }}>{intro}</p>
       </div>
 
-      {/* Visible list of exercises/questions (from packs[].question) */}
-      {questionItems.length > 0 && (
-        <div
-          className="gold-glow"
-          style={{
-            marginTop: 12,
-            border: '1px solid var(--gold-faint)',
-            borderRadius: 12,
-            padding: '12px 14px',
-          }}
-        >
-          <h4 style={{ margin: '0 0 8px 0' }}>Exercises & Questions</h4>
-          <ol style={{ margin: 0, paddingLeft: '1.25rem', color: '#dcdcdc' }}>
-            {questionItems.map((q) => (
-              <li key={q.key} style={{ marginBottom: 10 }}>
-                <div style={{ fontWeight: 700, color: '#fff', marginBottom: 2 }}>{q.title}</div>
-                {q.text ? (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {q.text}
-                  </div>
-                ) : (
-                  <div style={{ opacity: 0.7 }}>No description provided.</div>
-                )}
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
-
-      {/* Tiles: multi-pack tiles or legacy two tiles */}
       {packs && packs.length ? (
         <div
           className="gold-glow"
@@ -341,7 +357,7 @@ export default function TryIt({
                   </button>
                 )}
                 {p.hint && (
-                  <button className="button" onClick={() => onToggleHint(p.id)}>
+                  <button className="button" onClick={() => setOpenHintId(prev => (prev === p.id ? null : p.id))}>
                     {openHintId === p.id ? 'Hide hint' : 'Hint'}
                   </button>
                 )}
@@ -367,7 +383,6 @@ export default function TryIt({
           ))}
         </div>
       ) : !hideLegacyTiles ? (
-        // ===== Legacy two tiles (Forward/Index) =====
         <div
           className="gold-glow"
           style={{
@@ -380,7 +395,6 @@ export default function TryIt({
             padding: 12,
           }}
         >
-          {/* One-asset forward */}
           <div
             style={{
               border: '1px solid rgba(212,175,55,0.28)',
@@ -400,7 +414,6 @@ export default function TryIt({
             </div>
           </div>
 
-          {/* Index forward */}
           <div
             style={{
               border: '1px solid rgba(212,175,55,0.28)',

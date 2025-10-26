@@ -1,0 +1,79 @@
+.header {
+  padding: 22px 16px 10px;
+  border-bottom: 1px solid rgba(212,175,55,.18);
+  background: radial-gradient(900px 400px at 10% -20%, rgba(255,214,102,.06), transparent 60%), #0b0e14;
+}
+.title {
+  margin: 0 0 10px;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  background: linear-gradient(90deg, #d4af37, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Segmented control */
+.segmented { display: inline-flex; gap: 6px; background: rgba(255,255,255,.04); padding: 4px; border-radius: 12px; }
+.segBtn, .segBtnActive {
+  appearance: none; border: 0; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 700;
+  color: #cfd8e3; background: transparent;
+}
+.segBtnActive { color: #111318; background: linear-gradient(180deg,#ffd166,#e9b14e); }
+
+.ctaRow { margin-top: 10px; display: flex; gap: 8px; }
+.btnPro {
+  text-decoration: none; padding: 8px 14px; border-radius: 10px; font-weight: 800;
+  color: #111318; background: linear-gradient(180deg,#ff4d5a,#d62839);
+}
+.btnGhost {
+  text-decoration: none; padding: 8px 14px; border-radius: 10px; font-weight: 700;
+  color: #ffd166; border: 1px dashed rgba(255,214,102,.55); background: rgba(255,214,102,.06);
+}
+
+.main { max-width: 1200px; margin: 16px auto 40px; padding: 0 16px; }
+
+/* Products grid */
+.gridWrap { display: grid; grid-template-columns: repeat(3, minmax(260px,1fr)); gap: 18px; }
+@media (max-width: 1100px) { .gridWrap { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 720px)  { .gridWrap { grid-template-columns: 1fr; } }
+
+.card {
+  border: 1px solid rgba(255,214,102,.18);
+  border-radius: 14px;
+  background:
+    radial-gradient(500px 240px at 70% -20%, rgba(127,209,255,.10), transparent 60%),
+    linear-gradient(180deg,#141720,#0b0e14);
+  box-shadow: 0 8px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  padding: 12px 12px 14px;
+  display: grid;
+  gap: 10px;
+}
+.cardHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cardTitle { margin: 0; color: #eef2ff; font-size: 16px; font-weight: 800; }
+.badge { font-size: 12px; padding: 3px 8px; border-radius: 999px; color: #ffd166; border: 1px dashed rgba(255,214,102,.45); background: rgba(255,214,102,.08); }
+.sparkStub { height: 80px; border-radius: 10px; background: linear-gradient(180deg,#0f1320,#0b0e14); box-shadow: inset 0 0 0 1px rgba(255,255,255,.04); }
+
+.btnRow { display: flex; gap: 8px; }
+.btnBlue {
+  text-decoration: none; padding: 8px 12px; border-radius: 10px; font-weight: 700;
+  color: #0b0e14; background: linear-gradient(180deg,#7fd1ff,#4db7ff);
+}
+.btnGhost {
+  text-decoration: none; padding: 8px 12px; border-radius: 10px; font-weight: 700;
+  color: #ffd166; border: 1px dashed rgba(255,214,102,.55); background: rgba(255,214,102,.06);
+}
+
+/* API section */
+.apiWrap { display: grid; gap: 14px; }
+.apiIntro h2 { margin: 4px 0; color: #ffd166; }
+.apiIntro p { margin: 0; color: #9fb3c8; }
+
+.apiExplain { border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 14px; background: linear-gradient(180deg,rgba(255,255,255,.02),transparent); }
+.apiExplain h3 { margin: 0 0 6px; color: #e6edf5; }
+.apiExplain ul { margin: 0 0 8px 18px; color: #cfd8e3; }
+.apiCTArow { display: flex; justify-content: flex-start; }
+.btnGold {
+  text-decoration: none; padding: 10px 14px; border-radius: 12px; font-weight: 800;
+  color: #111318; background: linear-gradient(180deg,#ffd166,#e9b14e);
+  box-shadow: 0 6px 16px rgba(233,177,78,.35), inset 0 1px 0 rgba(255,255,255,.6);
+}

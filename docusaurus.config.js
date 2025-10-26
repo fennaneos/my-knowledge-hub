@@ -68,8 +68,15 @@ const config = {
           { to: '/finance/Actions-indices', label: 'Finance Courses', position: 'left' },
           { to: '/backtest', label: 'Backtest', position: 'right' },
           { to: '/premium/volatility-handbook', label: 'Premium Courses', position: 'left' },
-{ to: '/products', label: 'Products', position: 'left' },
 
+        {
+          label: 'Products',
+          position: 'left',
+          items: [
+            { label: 'Pricers', to: '/products' },
+            { label: 'APIs & Serverless', to: '/products/apis' },
+          ],
+        },
 
           // links to new pages
           { to: '/lab', label: 'Lab', position: 'right' },

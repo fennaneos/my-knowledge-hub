@@ -25,7 +25,7 @@
   --lux-shadow-strong: 0 0 .6rem rgba(255,215,0,.18), 0 0 2.8rem rgba(255,215,0,.10);
 
   /* Background image controls */
-  --site-bg-url: url('/img/site-bg.jpg');
+  --site-bg-url: url('');
   --site-bg-blur: 2px;     /* ↓ reduced blur (was 12px) */
   --site-bg-dim:  0.88;    /* ↓ slightly brighter (was 0.35) */
   --site-bg-scale: 1.06;
@@ -906,4 +906,117 @@ html { scroll-behavior: smooth; }
 .graphDrawer {
   margin-top:10px; border:1px solid rgba(255,255,255,.08); border-radius:12px;
   padding:8px; background: rgba(10,14,22,.6);
+}
+
+
+
+/* ===== Navbar alignment (Docusaurus) ===== */
+:root {
+  --nav-item-xpad: 0.6rem;              /* tweak if you want wider spacing */
+}
+.navbar__inner {
+  /* make sure items are truly centered vertically */
+  display: flex;
+  align-items: center;
+  height: var(--ifm-navbar-height);
+}
+.navbar__items {
+  display: flex;
+  align-items: center;
+}
+
+/* All items share the same vertical rhythm */
+.navbar__items .navbar__item {
+  display: flex;
+  align-items: center;
+  height: var(--ifm-navbar-height);
+  padding: 0 var(--nav-item-xpad);
+}
+
+/* The dropdown trigger should look identical to regular links */
+.navbar__item.dropdown > .navbar__link {
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  height: var(--ifm-navbar-height);
+}
+
+/* Optional: keep the little underline effect consistent */
+.navbar__link,
+.navbar__item.dropdown > .navbar__link {
+  line-height: 1;          /* avoid baseline shifts */
+}
+
+/* Active/hover color consistency */
+.navbar__link:hover,
+.navbar__item.dropdown:hover > .navbar__link {
+  color: #ffd166 !important;
+}
+
+/* ===== Gold-accent dropdown styling ===== */
+.navbar__item.dropdown {
+  position: relative;
+}
+
+/* Menu container */
+.navbar__item.dropdown .dropdown__menu {
+  margin-top: 0;                               /* keep it flush with the trigger */
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,214,102,0.28);
+  background:
+    linear-gradient(180deg, #161a22, #0b0e14) padding-box,
+    linear-gradient(135deg, rgba(255,214,102,.6), rgba(127,209,255,.35)) border-box;
+  box-shadow: 0 14px 28px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  min-width: 210px;
+  transform-origin: top;
+  transform: translateY(-8px) scale(.98);
+  opacity: 0;
+  transition: transform .14s ease, opacity .14s ease;
+  z-index: 1000; /* sit above hero shadows */
+}
+
+/* Open/hover states */
+.navbar__item.dropdown:hover .dropdown__menu,
+.navbar__item.dropdown:focus-within .dropdown__menu {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Individual links */
+.navbar__item.dropdown .dropdown__link {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #e6edf7;
+}
+
+/* Gold hover with left glow bar */
+.navbar__item.dropdown .dropdown__link:hover {
+  background: rgba(255,214,102,0.08);
+  color: #ffd166 !important;
+}
+.navbar__item.dropdown .dropdown__link:hover::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ffd166, #f0c56a);
+  box-shadow: 0 0 10px rgba(255,214,102,.45);
+}
+
+/* Optional: highlight active item if you want */
+.navbar__item.dropdown .dropdown__link--active {
+  background: rgba(255,214,102,0.12);
+  color: #ffd166 !important;
+  font-weight: 700;
+}
+
+/* Tighten dropdown caret spacing */
+.navbar__item.dropdown > .navbar__link svg {
+  margin-left: .35rem;
 }

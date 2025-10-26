@@ -1,9 +1,21 @@
-// src/pages/products.tsx
-import React from "react";
 import Layout from "@theme/Layout";
 import ProductGrid from "../components/ProductGrid";
+import React, { useMemo, useState, useEffect } from "react";
+
+type SectionKey = "pricers" | "apis";
+
+function useTabParam(): SectionKey {
+  if (typeof window === "undefined") return "pricers";
+  const p = new URLSearchParams(window.location.search).get("tab");
+  return p === "apis" ? "apis" : "pricers";
+}
 
 export default function ProductsPage() {
+  const [section, setSection] = useState<SectionKey>("pricers");
+
+  useEffect(() => {
+    setSection(useTabParam());
+  }, []);
   return (
     <Layout title="Products" description="Catalog of pricing tools with live previews">
       <div style={{maxWidth: 1100, margin: "0 auto", padding: "22px 14px 60px"}}>
