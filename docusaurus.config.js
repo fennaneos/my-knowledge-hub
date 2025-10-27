@@ -9,6 +9,16 @@ const require = createRequire(import.meta.url);
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
+  customFields: {
+    GUMROAD_PRO: process.env.GUMROAD_PRO,
+    GUMROAD_COURSE: process.env.GUMROAD_COURSE,
+    GUMROAD_MUG: process.env.GUMROAD_MUG,
+    LABS_MONTHLY: process.env.LABS_MONTHLY,
+    LABS_ANNUAL: process.env.LABS_ANNUAL,
+    LABS_TEAMS: process.env.LABS_TEAMS,
+    CALENDAR_URL: "https://cal.com/fennaneo",
+    CONTACT_EMAIL: "yfennaneoussama@gmail.com"
+  },
   title: 'DevDocs',
   tagline: 'Developer Knowledge Hub',
   url: 'http://localhost:3000',
@@ -26,7 +36,13 @@ const config = {
       onBrokenMarkdownLinks: 'warn',
     },
   },
-    scripts: ['/market-fetch.js'], // served from /static
+    scripts: ['/market-fetch.js'
+      ,     {
+      src: 'https://gumroad.com/js/gumroad.js',
+      async: true,
+      id: 'gumroad-js', // prevents duplicate injection
+    },
+    ], // served from /static
 
   presets: [
     [

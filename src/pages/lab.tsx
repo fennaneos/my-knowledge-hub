@@ -512,7 +512,10 @@ Discrete (Euler) daily step (Δt = 1/252):
                 <button className="btn-ghost-blue" onClick={()=>alert("Pro: switch to antithetic or quasi-random sampling, add drift regimes, correlations, VaR/CVaR.")}>
                   Pro Variants
                 </button>
-                <a className="btn-neo-red-modern" href="/pricing-labs">Unlock Pro Models</a>
+                <a className="btn-neo-red-modern" href="/pricing-labs" target="_blank" rel="noopener noreferrer">
+  Unlock Pro Models
+</a>
+
               </div>
             </div>
           </div>

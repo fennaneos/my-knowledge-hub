@@ -1,46 +1,69 @@
-/* =========================
-   HERO (Markets Dashboard)
-   ========================= */
+/* ========== Page-level tokens (optional) ========== */
+:root {
+  /* You can override per-page without touching global theme */
+      --site-bg-url: url('/img/bg.jpg');}
+
+/* ---------- HERO SECTION (short band + image) ---------- */
 .heroRoot {
   position: relative;
-  min-height: clamp(220px, 38vh, 420px);
-  width: 100%;
-  background: center/cover no-repeat url('/img/bg.jpg');
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  height: 42vh;              /* short, elegant hero */
+  min-height: 320px;
+  color: #fff;
+
+  /* your image restored; fallback color behind it */
+  background:
+    center / cover no-repeat var(--hero-bg-url),
+    #0b0e14;
+  --site-bg-url: url('/img/bg.jpg');
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(1200px 800px at 50% 30%,
-    rgba(2, 12, 24, 0.35) 0%,
-    rgba(2, 12, 24, 0.68) 55%,
-    rgba(2, 12, 24, 0.86) 100%);
+  --site-bg-url: url('/img/bg.jpg');
+  background: linear-gradient(
+    180deg,
+    rgba(255, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.75) 60%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+  pointer-events: none;
 }
+
 .heroContent {
   position: relative;
-  text-align: center;
-  padding: 1.2rem .9rem;
-  max-width: 760px;
+  z-index: 1;
+  max-width: 780px;
+  padding: 2rem 1.5rem;
 }
+
 .heroTitle {
-  margin: 0 0 .35rem;
-  font-size: clamp(1.75rem, 3.2vw, 2.4rem);
-  font-weight: 800;
-  background: linear-gradient(90deg, #d4af37, #ffd700);
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  background: linear-gradient(90deg, #5cfaff, #b45cff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.heroTag {
-  color: #e8edf5;
-  opacity: .95;
-  margin: .15rem 0 .9rem;
-}
-.heroCtas { display: inline-flex; gap: .7rem; }
 
-/* =========================
-   LAYOUT / GENERIC BOXES
-   ========================= */
+.heroTag {
+  font-size: 1.05rem;
+  color: #d0d0d0;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.cta-group { display:flex; flex-wrap:wrap; justify-content:center; gap:.6rem; }
+.cta-pro-line { margin-top: 1rem; }
+
+/* ---------- LAYOUT / BOXES (kept minimal) ---------- */
 .mainWrap {
   max-width: 1200px;
   margin: 14px auto 40px;
@@ -66,13 +89,9 @@
   grid-template-columns: 1.5fr 1fr;
   gap: 16px;
 }
-@media (max-width: 1100px) {
-  .grid2 { grid-template-columns: 1fr; }
-}
+@media (max-width: 1100px) { .grid2 { grid-template-columns: 1fr; } }
 
-/* =========================
-   CHART + WATCHLIST
-   ========================= */
+/* ---------- Chart + Watchlist ---------- */
 .chartCard {
   width: 100%;
   height: 440px;
@@ -90,43 +109,118 @@
   border-bottom: 1px dashed rgba(212,175,55,0.15);
 }
 .watchRow:last-child { border-bottom: 0; }
-.sym {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  color: #e6edf3;
-}
+.sym { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color: #e6edf3; }
 .nm { color: #9fb3c8; }
 .badge {
-  font-size: 12px;
-  padding: 4px 8px;
-  border: 1px solid rgba(212,175,55,0.35);
-  border-radius: 999px;
-  color: #ffd873;
-  text-decoration: none;
+  font-size: 12px; padding: 4px 8px; border: 1px solid rgba(212,175,55,0.35);
+  border-radius: 999px; color: #ffd873; text-decoration: none;
 }
 .badge:hover { background: rgba(212,175,55,0.08); }
 .disclaimer { color: #7f95ab; font-size: 12px; margin-top: 8px; }
 
-/* =========================
-   ABOUT ME
-   ========================= */
+/* ---------- About Me ---------- */
+/* ---------- ABOUT SECTION ---------- */
 .aboutWrap {
-  padding: 42px 16px 20px;
-  background: radial-gradient(900px 420px at 80% -10%, rgba(197,156,255,.06), transparent 60%), #0b0e14;
+  padding: 42px 16px 24px;
+  background:
+    radial-gradient(900px 420px at 80% -10%, rgba(197,156,255,.06), transparent 60%),
+    #0b0e14;
 }
+
+/* Compact bio row: small fixed photo + flexible text */
 .aboutBox {
   max-width: 1100px;
   margin: 0 auto;
   display: grid;
-  gap: 24px;
-  grid-template-columns: 240px 1fr;
-  border-radius: 22px;
-  padding: 20px;
+  grid-template-columns: 160px 1fr;  /* small portrait column */
+  gap: 18px;
+  align-items: start;
+
+  border-radius: 18px;
+  padding: 18px;
   background:
     linear-gradient(#10141b, #0b0e14) padding-box,
-    linear-gradient(135deg, rgba(255,214,102,.7), rgba(102,225,255,.25)) border-box;
+    linear-gradient(135deg, rgba(255,214,102,.55), rgba(120,180,255,.25)) border-box;
   border: 1px solid transparent;
-  box-shadow: 0 10px 36px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
+  box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
 }
+
+.aboutPhoto {
+  width: 160px;           /* fixed, small */
+  height: 200px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid rgba(255,214,102,.25);
+  box-shadow: 0 6px 22px rgba(0,0,0,.45);
+  background: #131720;
+}
+
+.aboutText h2 { margin: 0 0 10px; color: #ffd166; }
+.aboutText p  { color: #cfd8e3; line-height: 1.6; margin: 8px 0; }
+.aboutCTA     { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Cards below the bio (full-width under aboutBox) */
+.contactGrid {
+  max-width: 1100px;
+  margin: 14px auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 980px) { .contactGrid { grid-template-columns: 1fr; } }
+
+.contactCard {
+  border-radius: 16px;
+  padding: 14px;
+  background:
+    linear-gradient(180deg, rgba(16,20,27,.95), rgba(11,14,20,.98)) padding-box,
+    linear-gradient(135deg, rgba(255,214,102,.35), rgba(120,180,255,.25)) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 12px 30px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.cardHead h3 { margin: 0; color: #ffd166; }
+.cardSub     { margin: 2px 0 10px; color: #cfd8e3; opacity: .85; font-size: 13px; }
+
+/* Calendar */
+.calendarWrap {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,214,102,.25);
+  background: #0a0a0a;      /* black shell */
+  box-shadow: 0 10px 24px rgba(0,0,0,.6);
+}
+.calendarFrame { background: #0a0a0a; }
+
+
+/* Contact form */
+.contactForm  { display: grid; gap: 10px; }
+.formRow      { display: grid; gap: 6px; }
+.formLabel    { font-size: 12px; color: #000000; opacity: .9; }
+.input, .textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(120,180,255,.28);
+  background: rgba(10,14,22,.65);
+  color: #e7efff;
+  padding: 10px 12px;
+}
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: rgba(140,200,255,.6);
+  box-shadow: 0 0 0 2px rgba(140,200,255,.15);
+}
+.formActions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.smallNote   { margin-top: 6px; font-size: 12px; color: #9fb3c8; }
+
+/* Mobile tweaks */
+@media (max-width: 860px) {
+  .aboutBox { grid-template-columns: 120px 1fr; padding: 14px; }
+  .aboutPhoto { width: 120px; height: 160px; }
+  .calendarFrame { height: 460px; }
+}
+
+
 @media (max-width: 860px) { .aboutBox { grid-template-columns: 1fr; } }
 .aboutPhoto {
   width: 100%; height: 100%; object-fit: cover;
@@ -138,37 +232,52 @@
 .aboutText p { color: #cfd8e3; line-height: 1.6; margin: 8px 0; }
 .aboutCTA { margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap; }
 
-/* =========================
-   TESTIMONIALS (MARQUEE)
-   ========================= */
+/* ---------- Testimonials (marquee) ---------- */
 .marqueeSection { padding: 22px 0 50px; background: #0b0e14; }
-.marqueeMask {
-  max-width: 1200px; margin: 0 auto; overflow: hidden; position: relative;
-}
-.marqueeTrack {
-  display: flex; gap: 18px;
-  animation: slideX 28s linear infinite;
-  padding: 10px 6px;
-}
+.marqueeMask { max-width: 1200px; margin: 0 auto; overflow: hidden; position: relative; }
+.marqueeTrack { display: flex; gap: 18px; animation: slideX 28s linear infinite; padding: 10px 6px; }
 .marqueeMask:hover .marqueeTrack { animation-play-state: paused; }
 @keyframes slideX { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 .quoteCard {
-  min-width: 320px; max-width: 360px;
-  padding: 14px 16px;
-  border-radius: 14px;
+  min-width: 320px;
+  max-width: 360px;
+  padding: 18px 20px;
+  border-radius: 16px;
   background:
-    linear-gradient(180deg,#131722,#0b0e14),
-    radial-gradient(360px 200px at 120% -40%, rgba(255,214,102,.08), transparent 60%);
-  border: 1px solid rgba(255,214,102,.18);
-  box-shadow: 0 8px 20px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
+    linear-gradient(180deg,#131722,#0b0e14) padding-box,
+    linear-gradient(135deg,
+      rgba(90,110,200,.7),
+      rgba(255,214,102,.25)
+    ) border-box;
+  border: 1.5px solid transparent;
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.45),
+    0 0 18px rgba(90,110,200,.18);
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
+.quoteCard:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 36px rgba(0,0,0,.5),
+    0 0 20px rgba(90,110,200,.35);
+  border-color: rgba(90,110,200,.8);
+}
+
+.marqueeSection {
+  background: radial-gradient(800px 400px at 50% -100px,
+              rgba(90,110,200,.06), transparent 70%),
+              #0b0e14;
+  border-top: 1px solid rgba(90,110,200,.15);
+  border-bottom: 1px solid rgba(255,214,102,.1);
+  padding: 28px 0 54px;
+}
+
+
 .quoteText { color: #e6edf7; margin: 0 0 10px; }
 .quoteMeta { color: #9fb3c8; font-size: 13px; display: flex; gap: 8px; }
 .quoteName { color: #ffd166; }
 
-/* ============================================================
-   COURSES (Tarot-style cards) — kept LAST for clarity/priority
-   ============================================================ */
+/* ---------- Courses (tarot-style) ---------- */
 .goldSection {
   padding: 40px 16px;
   background:
@@ -177,36 +286,22 @@
     #0b0e14;
 }
 .goldFrame {
-  max-width: 1200px;
-  margin: 0 auto;
-  border-radius: 24px;
-  padding: 26px 22px 30px;
+  max-width: 1200px; margin: 0 auto; border-radius: 24px; padding: 26px 22px 30px;
   background:
     linear-gradient(#111418, #0b0e14) padding-box,
     linear-gradient(135deg, rgba(255,214,102,.85), rgba(255,214,102,.25), rgba(102,225,255,.35)) border-box;
   border: 1px solid transparent;
   box-shadow: 0 10px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
 }
-.goldHeader {
-  display: grid; gap: 6px; padding: 8px 6px 18px;
-}
+.goldHeader { display: grid; gap: 6px; padding: 8px 6px 18px; }
 .goldHeader h2 { margin: 0; color: #ffd166; letter-spacing: .3px; }
 .goldHeader p  { margin: 0; color: #cfd8e3; opacity: .85; font-size: 14px; }
 
-.cardRow {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(240px, 1fr));
-  gap: 28px;
-}
-@media (max-width: 980px) {
-  .cardRow { grid-template-columns: 1fr; }
-}
+.cardRow { display: grid; grid-template-columns: repeat(3, minmax(240px, 1fr)); gap: 28px; }
+@media (max-width: 980px) { .cardRow { grid-template-columns: 1fr; } }
 
 .tarotCard {
-  position: relative;
-  overflow: hidden;
-  border-radius: 20px;
-  padding: 18px 18px 16px;
+  position: relative; overflow: hidden; border-radius: 20px; padding: 18px 18px 16px;
   background:
     radial-gradient(600px 300px at 50% 120%, rgba(102,72,255,.25), transparent 55%),
     radial-gradient(450px 280px at -20% -20%, rgba(255,214,102,.08), transparent 60%),
@@ -221,49 +316,211 @@
   box-shadow: 0 14px 46px rgba(0,0,0,.55), 0 0 0 1px rgba(255,214,102,.35) inset;
   border-color: rgba(255,214,102,.35);
 }
-.tarotCard::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: conic-gradient(from 230deg,
-    rgba(255,214,102,.0),
-    rgba(255,214,102,.18),
-    rgba(102,225,255,.12),
-    rgba(255,214,102,.0));
-  filter: blur(22px);
-  opacity: .25;
-  pointer-events: none;
-}
-
-.tarotHead {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; margin-bottom: 8px;
-}
+.tarotHead { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
 .tarotHead h3 { margin: 0; color: #eef2ff; letter-spacing: .3px; }
-.badge {
-  font-size: 12px; padding: 4px 8px; border-radius: 999px;
-  border: 1px dashed rgba(255,214,102,.5);
-  color: #ffd166; background: rgba(255,214,102,.06);
-}
-
+.badge { font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px dashed rgba(255,214,102,.5); color: #ffd166; background: rgba(255,214,102,.06); }
 .tarotDesc { color: #cfd8e3; opacity: .9; font-size: 14px; margin: 6px 0 16px; }
-
 .btnRow { display: flex; gap: 10px; margin-top: auto; }
-.btn-neo-gold, .btn-ghost-gold {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 8px 14px; border-radius: 10px; text-decoration: none; font-weight: 700;
-}
-.btn-neo-gold {
-  color: #1a1306; background: linear-gradient(180deg,#ffd166,#f4c048);
-  box-shadow: 0 6px 18px rgba(255,214,102,.25);
-}
+.btn-neo-gold, .btn-ghost-gold { display:inline-flex; align-items:center; justify-content:center; padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:700; }
+.btn-neo-gold { color:#1a1306; background: linear-gradient(180deg,#ffd166,#f4c048); box-shadow: 0 6px 18px rgba(255,214,102,.25); }
 .btn-neo-gold:hover { filter: brightness(1.03); transform: translateY(-1px); }
-.btn-ghost-gold {
-  color: #ffd166; border: 1px dashed rgba(255,214,102,.55);
-  background: rgba(255,214,102,.06);
-}
+.btn-ghost-gold { color:#ffd166; border:1px dashed rgba(255,214,102,.55); background: rgba(255,214,102,.06); }
 .btn-ghost-gold:hover { background: rgba(255,214,102,.12); }
-
-/* Optional subtle tint variants */
 .card0 { background-image: radial-gradient(480px 280px at 30% -20%, rgba(255,214,102,.12), transparent 60%); }
 .card1 { background-image: radial-gradient(480px 280px at 70% -20%, rgba(102,225,255,.12), transparent 60%); }
 .card2 { background-image: radial-gradient(480px 280px at 50% -30%, rgba(197,156,255,.12), transparent 60%); }
+
+
+
+/* --- Booking + contact grid --- */
+.contactGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 18px;
+}
+@media (max-width: 980px) { .contactGrid { grid-template-columns: 1fr; } }
+
+.contactCard {
+  border-radius: 16px;
+  padding: 14px;
+  background:
+    linear-gradient(180deg, rgba(16,20,27,.95), rgba(11,14,20,.98)) padding-box,
+    linear-gradient(135deg, rgba(255,214,102,.35), rgba(120,180,255,.25)) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 12px 30px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.cardHead h3 { margin: 0; color: #ffd166; }
+.cardSub { margin: 2px 0 10px; color: #cfd8e3; opacity: .85; font-size: 13px; }
+
+/* Calendar */
+.calendarWrap { border-radius: 12px; overflow: hidden; border: 1px solid rgba(120,180,255,.25); }
+.calendarFrame { width: 100%; height: 560px; border: 0; display: block; background: #0b0e14; }
+
+/* Contact form */
+.contactForm { display: grid; gap: 10px; }
+.formRow { display: grid; gap: 6px; }
+.formLabel { font-size: 12px; color: #cfd8e3; opacity: .9; }
+.input, .textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(120,180,255,.28);
+  background: rgba(10,14,22,.65);
+  color: #e7efff;
+  padding: 10px 12px;
+}
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: rgba(140,200,255,.6);
+  box-shadow: 0 0 0 2px rgba(140,200,255,.15);
+}
+.formActions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.smallNote { margin-top: 6px; font-size: 12px; color: #9fb3c8; }
+.hidden { display: none; }
+
+
+
+
+
+/* Darker card shell */
+.blackCard{
+  background:
+    linear-gradient(180deg, rgba(10,12,18,.96), rgba(7,9,14,.98)) padding-box,
+    linear-gradient(135deg, rgba(90,110,200,.35), rgba(120,180,255,.18)) border-box;
+  border:1px solid transparent;
+}
+
+/* Success / Error boxes */
+.successBox{
+  border:1px solid rgba(80,200,120,.35);
+  background:rgba(20,60,30,.55);
+  color:#cfeedd;
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:12px;
+}
+.errorBox{
+  border:1px solid rgba(255,100,100,.35);
+  background:rgba(60,20,20,.55);
+  color:#ffdcdc;
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:12px;
+}
+
+/* Inputs on black */
+.input, .textarea{
+  background:#0b0f16;
+  border:1px solid rgba(120,180,255,.22);
+  color:#e7efff;
+}
+.input:focus, .textarea:focus{
+  border-color:#6eb6ff;
+  box-shadow:0 0 0 2px rgba(110,182,255,.18);
+}
+
+/* Very dark buttons with subtle blue edge */
+.btn-black{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 16px; border-radius:12px; font-weight:800;
+  background:#0b0e14; color:#e7edff; text-decoration:none;
+  border:1px solid rgba(120,170,255,.35);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.45), 0 6px 18px rgba(0,0,0,.35);
+  transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.btn-black:hover{
+  transform: translateY(-1px);
+  border-color: rgba(140,200,255,.6);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.45), 0 10px 26px rgba(0,0,0,.45);
+}
+.btn-black:disabled{ opacity:.7; cursor:not-allowed; }
+
+.btn-black-ghost{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 16px; border-radius:12px; font-weight:800;
+  background:transparent; color:#cfe0ff; text-decoration:none;
+  border:1px dashed rgba(120,170,255,.45);
+  transition: transform .12s ease, border-color .2s ease, color .2s ease;
+}
+.btn-black-ghost:hover{
+  transform: translateY(-1px);
+  color:#ffffff;
+  border-color:#6eb6ff;
+}
+
+/* Keep the right column aligned with the calendar */
+.contactCard{ min-height: 440px; }
+
+
+
+
+/* Darker card shell */
+.blackCard{
+  background:
+    linear-gradient(180deg, rgba(10,12,18,.96), rgba(7,9,14,.98)) padding-box,
+    linear-gradient(135deg, rgba(90,110,200,.35), rgba(120,180,255,.18)) border-box;
+  border:1px solid transparent;
+}
+
+/* Success / Error boxes */
+.successBox{
+  border:1px solid rgba(80,200,120,.35);
+  background:rgba(20,60,30,.55);
+  color:#cfeedd;
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:12px;
+}
+.errorBox{
+  border:1px solid rgba(255,100,100,.35);
+  background:rgba(60,20,20,.55);
+  color:#ffdcdc;
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:12px;
+}
+
+/* Inputs on black */
+.input, .textarea{
+  background:#0b0f16;
+  border:1px solid rgba(120,180,255,.22);
+  color:#e7efff;
+}
+.input:focus, .textarea:focus{
+  border-color:#6eb6ff;
+  box-shadow:0 0 0 2px rgba(110,182,255,.18);
+}
+
+/* Very dark buttons with subtle blue edge */
+.btn-black{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 16px; border-radius:12px; font-weight:800;
+  background:#0b0e14; color:#e7edff; text-decoration:none;
+  border:1px solid rgba(120,170,255,.35);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.45), 0 6px 18px rgba(0,0,0,.35);
+  transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.btn-black:hover{
+  transform: translateY(-1px);
+  border-color: rgba(140,200,255,.6);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.45), 0 10px 26px rgba(0,0,0,.45);
+}
+.btn-black:disabled{ opacity:.7; cursor:not-allowed; }
+
+.btn-black-ghost{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 16px; border-radius:12px; font-weight:800;
+  background:transparent; color:#cfe0ff; text-decoration:none;
+  border:1px dashed rgba(120,170,255,.45);
+  transition: transform .12s ease, border-color .2s ease, color .2s ease;
+}
+.btn-black-ghost:hover{
+  transform: translateY(-1px);
+  color:#ffffff;
+  border-color:#6eb6ff;
+}
+
+/* Keep the right column aligned with the calendar */
+.contactCard{ min-height: 440px; }
+

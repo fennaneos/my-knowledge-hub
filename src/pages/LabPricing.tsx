@@ -1,11 +1,14 @@
 import React from "react";
+import siteConfig from "@generated/docusaurus.config";
 
-const WEEKLY  = (import.meta as any).env?.VITE_LABS_WEEKLY  || "#";
-const MONTHLY = (import.meta as any).env?.VITE_LABS_MONTHLY || "#";
-const ANNUAL  = (import.meta as any).env?.VITE_LABS_ANNUAL  || "#";
-const TEAMS   = (import.meta as any).env?.VITE_LABS_TEAMS   || "#";
-// Optional: dedicated link for Quant
-const QUANT   = (import.meta as any).env?.VITE_LABS_QUANT   || ANNUAL;
+const cf = (siteConfig.customFields ?? {}) as Record<string, string | undefined>;
+
+const WEEKLY  = cf.LABS_WEEKLY  ?? "#";
+const MONTHLY = cf.LABS_MONTHLY ?? "#";
+const ANNUAL  = cf.LABS_ANNUAL  ?? "#";
+const TEAMS   = cf.LABS_TEAMS   ?? "#";
+const QUANT   = cf.LABS_QUANT   ?? ANNUAL; // optional
+
 
 function Card({
   title,

@@ -1,65 +1,125 @@
-/* Full-viewport section with your image */
-.heroRoot {
-  position: relative;
-  min-height: calc(100vh - var(--ifm-navbar-height));
-  width: 100%;
-  background-image: url(''); /* << your image */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+/* ---------- PAGE TOKENS (optional override) ---------- */
+:root {
+  /* Use site-level image if set in custom.css; otherwise fall back to /img/bg.jpg */
+  --hero-bg-url: var(--site-bg-url, url('/img/bg.jpg'));
 }
 
-/* Subtle dark blue overlay to blend with your site theme */
+/* ---------- HERO (short band with image) ---------- */
+.heroRoot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  height: 42vh;              /* short band */
+  min-height: 320px;
+  color: #fff;
+
+  /* ✅ your image */
+  background:
+    center / cover no-repeat var(--hero-bg-url),
+    #0b0e14;                 /* safe fallback */
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(1200px 800px at 50% 30%,
-    rgba(2, 12, 24, 0.35) 0%,
-    rgba(2, 12, 24, 0.65) 55%,
-    rgba(2, 12, 24, 0.82) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.40) 0%,
+    rgba(0, 0, 0, 0.60) 50%,
+    rgba(0, 0, 0, 0.80) 100%
+  );
   pointer-events: none;
 }
 
-/* Centered text block */
 .heroContent {
-  position: relative;  /* above overlay */
-  text-align: center;
-  padding: 2rem 1rem;
-  max-width: 880px;
+  position: relative;
+  z-index: 1;
+  max-width: 780px;
+  padding: 2rem 1.5rem;
 }
 
-/* Gold gradient title (matches your docs headings) */
 .heroTitle {
-  margin: 0 0 .5rem;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  font-weight: 800;
-  background: linear-gradient(90deg, var(--gold-1, #d4af37), var(--gold-2, #ffd700));
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  background: linear-gradient(90deg, #5cfaff, #b45cff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .heroTag {
-  color: #e8edf5;
-  font-size: clamp(1rem, 1.8vw, 1.2rem);
-  opacity: .95;
-  margin: .25rem 0 1.25rem;
+  font-size: 1.05rem;
+  color: #d0d0d0;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
 }
 
-/* Buttons row */
-.heroCtas {
-  display: inline-flex;
-  gap: .7rem;
+.cta-group { display:flex; flex-wrap:wrap; justify-content:center; gap:.6rem; }
+.cta-pro-line { margin-top: 1rem; }
+
+/* optional subtle grid */
+.heroRoot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at center, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: .2;
+  z-index: 0;
 }
 
-/* Make sure buttons pop on the image */
-.heroCtas .button {
-  border-radius: 12px;
-  border: 1px solid rgba(212,175,55,0.25);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+
+.btn-neo-blue,
+.btn-neo-red-modern,
+.btn-neo-gold,
+.btn-ghost-blue,
+.btn-ghost-gold,
+.gumroad-button {
+  background: linear-gradient(180deg, #4b4b4b, #2b2b2b);
+  color: #f6f6f6 !important;
+  border: 1px solid rgba(70, 90, 170, 0.7);  /* dark blue border */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s ease;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.btn-neo-blue:hover,
+.btn-neo-red-modern:hover,
+.btn-neo-gold:hover,
+.btn-ghost-blue:hover,
+.btn-ghost-gold:hover,
+.gumroad-button:hover {
+  background: linear-gradient(180deg, #585858, #353535);
+  border-color: rgba(90, 110, 200, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(90, 110, 200, 0.35);
+}
+
+/* Kill any leftover Gumroad lightbox if a cached script tries to inject it */
+#gumroad-overlay,
+.gumroad-overlay,
+.gumroad-lightbox,
+.gumroad-modal,
+iframe[src*="gumroad"] {
+  display: none !important;
 }
 
 
+/* ghost (outlined) look */
+.btn-ghost-blue,
+.btn-ghost-gold {
+  background: transparent;
+  color: #e0e6f5 !important;
+  border: 1px solid rgba(80, 100, 190, 0.8);
+}
+.btn-ghost-blue:hover,
+.btn-ghost-gold:hover {
+  background: rgba(80, 100, 190, 0.15);
+}
