@@ -210,7 +210,7 @@ function AboutMe() {
 
         </div>
       </div>
-
+    
       {/* Cards go BELOW the bio */}
       <div className={styles.contactGrid}>
         <article className={styles.contactCard}>
@@ -240,6 +240,52 @@ function AboutMe() {
 
   <SendMessageCard />
 
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Course Slider Section ---------- */
+
+const COURSES = [
+  {
+    id: "algebra-calculus",
+    title: "Algebra & Calculus",
+    level: "Beginner → Advanced",
+    desc: "From foundations to multivariable calculus: limits, derivations, integrals, series.",
+  },
+  {
+    id: "prob-stats",
+    title: "Probability & Statistics",
+    level: "All Levels",
+    desc: "Random variables, distributions, estimation, hypothesis testing, time series.",
+  },
+  {
+    id: "quant-finance",
+    title: "Quantitative Finance",
+    level: "Intermediate → Pro",
+    desc: "Stochastic calculus, options, risk, volatility modeling, and Python pricing labs.",
+  },
+];
+
+function CourseSlider() {
+  return (
+    <section className={styles.courseSliderSection}>
+      <div className={styles.courseSliderFrame}>
+        <h2 className={styles.courseTitle}>Courses You Can Enroll In</h2>
+        <p className={styles.courseSubtitle}>Structured learning paths from fundamentals to pro-level quant mastery.</p>
+
+        <div className={styles.courseTrack}>
+          {COURSES.map((c) => (
+            <div key={c.id} className={styles.courseCard}>
+              <div className={styles.courseCardHead}>
+                <h3>{c.title}</h3>
+                <span className={styles.courseBadge}>{c.level}</span>
+              </div>
+              <p className={styles.courseDesc}>{c.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -282,6 +328,8 @@ export default function TradingHome(): JSX.Element {
           </div>
         </section> */}
 
+          
+
         {/* Chart */}
         <section className={styles.box}>
           <div className={styles.boxHeader}><span>Equity Chart</span></div>
@@ -290,8 +338,12 @@ export default function TradingHome(): JSX.Element {
           </div>
         </section>
 
+                {/* Courses */}
+<CourseSlider />
+
         {/* About */}
         <AboutMe />
+
         <section className={styles.marqueeSection}>
           <div className={styles.marqueeMask}>
             <div className={styles.marqueeTrack}>

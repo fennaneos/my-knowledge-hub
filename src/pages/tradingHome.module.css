@@ -524,3 +524,123 @@
 /* Keep the right column aligned with the calendar */
 .contactCard{ min-height: 440px; }
 
+
+
+/* ---------- COURSE SLIDER SECTION ---------- */
+.courseSliderSection {
+  padding: 40px 0 60px;
+  background:
+    radial-gradient(800px 400px at 10% -10%, rgba(255,214,102,0.05), transparent 60%),
+    #0b0e14;
+  border-top: 1px solid rgba(255,214,102,0.08);
+  border-bottom: 1px solid rgba(255,214,102,0.08);
+}
+
+.courseSliderFrame {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 18px;
+  text-align: center;
+}
+
+.courseTitle {
+  color: #ffd166;
+  font-size: 1.9rem;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.courseSubtitle {
+  color: #cfd8e3;
+  opacity: .9;
+  margin-bottom: 22px;
+  font-size: 0.95rem;
+}
+
+/* horizontal scroll */
+.courseTrack {
+  display: flex;
+  gap: 22px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,214,102,.4) transparent;
+}
+
+
+.courseTrack:hover { animation-play-state: paused; }
+
+@keyframes slideCourses {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+
+.courseTrack::-webkit-scrollbar {
+  height: 6px;
+}
+.courseTrack::-webkit-scrollbar-thumb {
+  background: rgba(255,214,102,.4);
+  border-radius: 3px;
+}
+.courseTrack::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.courseCard {
+  flex: 0 0 320px;
+  scroll-snap-align: start;
+  background:
+    linear-gradient(180deg, #121722, #0b0e14) padding-box,
+    linear-gradient(135deg, rgba(255,214,102,.45), rgba(120,180,255,.25)) border-box;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  box-shadow: 0 10px 32px rgba(0,0,0,.5);
+  padding: 20px 18px 22px;
+  text-align: left;
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+
+.courseCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 46px rgba(0,0,0,.6);
+  border-color: rgba(255,214,102,.35);
+}
+
+.courseCardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.courseCardHead h3 {
+  color: #e6edf7;
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.courseBadge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px dashed rgba(255,214,102,.5);
+  color: #ffd166;
+  background: rgba(255,214,102,.06);
+}
+
+.courseDesc {
+  color: #cfd8e3;
+  opacity: .9;
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.courseActions {
+  display: flex;
+  gap: 10px;
+}
+
